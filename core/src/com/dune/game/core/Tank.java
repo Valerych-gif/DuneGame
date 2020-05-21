@@ -2,6 +2,7 @@ package com.dune.game.core;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,16 +19,19 @@ public class Tank {
     private float moveTimer;
     private float timePerFrame;
 
+    private Projectile projectile;
+
     public Vector2 getPosition() {
         return position;
     }
 
-    public Tank(TextureAtlas atlas, float x, float y) {
+    public Tank(TextureAtlas atlas, float x, float y, Projectile projectile) {
         this.position = new Vector2(x, y);
         this.tmp = new Vector2(0, 0);
         this.textures = new TextureRegion(atlas.findRegion("tankanim")).split(64, 64)[0];
         this.speed = 140.0f;
         this.timePerFrame = 0.08f;
+        this.projectile = projectile;
     }
 
     private int getCurrentFrameIndex() {
@@ -51,9 +55,11 @@ public class Tank {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
-
+            projectile.setup(position, angle);
         }
+
         checkBounds();
+
     }
 
     public void checkBounds() {
