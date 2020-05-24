@@ -20,6 +20,7 @@ public class WorldRenderer {
         batch.begin();
         gc.getMap().render(batch);
         gc.getTank().render(batch);
+        gc.getProjectile().render(batch);
         batch.end();
     }
 }
