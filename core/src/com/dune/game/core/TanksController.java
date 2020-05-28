@@ -31,4 +31,14 @@ public class TanksController extends ObjectPool<Tank> {
         }
         checkPool();
     }
+
+    public void select(int x, int y) {
+        for (int i = 0; i < activeList.size(); i++) {
+            if (activeList.get(i).position.dst(x, y) < 40.0f) {
+                activeList.get(i).startControl();
+            } else {
+                activeList.get(i).stopControl();
+            }
+        }
+    }
 }
