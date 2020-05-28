@@ -1,69 +1,107 @@
 package com.dune.game.core;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.dune.game.screens.GameScreen;
+import com.badlogic.gdx.math.Vector2;
 
 public class BattleMap {
+    private class Cell {
+        private int cellX, cellY;
+        private int resource;
+        private float resourceRegenerationRate;
+        private float resourceRegenerationTime;
 
-    private TextureRegion grassTexture, coinTexture;
-    private int[][] groundType;
-    private int blockX, blockY;
+        public Cell(int cellX, int cellY) {
+            this.cellX = cellX;
+            this.cellY = cellY;
+            if(MathUtils.random() < 0.1f) {
+                resource = MathUtils.random(1, 3);
+            }
+            resourceRegenerationRate = MathUtils.random(5.0f) - 4.5f;
+            if (resourceRegenerationRate < 0.0f) {
+                resourceRegenerationRate = 0.0f;
+            } else {
+                resourceRegenerationRate *= 20.0f;
+                resourceRegenerationRate += 10.0f;
+            }
+        }
 
-    public BattleMap(int screenWidth, int screenHeight) {
-        groundType = new int[screenWidth][screenHeight];
-        this.grassTexture = Assets.getInstance().getAtlas().findRegion("grass");
-        this.coinTexture = Assets.getInstance().getAtlas().findRegion("coin");
-        generate();
-    }
+        private void update(float dt) {
+            if (resourceRegenerationRate > 0.01f) {
+                resourceRegenerationTime += dt;
+                if (resourceRegenerationTime > resourceRegenerationRate) {
+                    resourceRegenerationTime = 0.0f;
+                    resource++;
+                    if (resource > 5) {
+                        resource = 5;
+                    }
+                }
+            }
+        }
 
-    private void generate() {
-        for (blockY = 0; blockY < GameScreen.HEIGHT; blockY++) {
-            for (blockX = 0; blockX < GameScreen.WIDTH; blockX++) {
-                if (MathUtils.random(10) < 9) {
-                    groundType[blockX][blockY] = 0;
-                } else {
-                    groundType[blockX][blockY] = 1;
+        private void render(SpriteBatch batch) {
+            if (resource > 0) {
+                float scale = 0.5f + resource * 0.2f;
+                batch.draw(resourceTexture, cellX * 80, cellY * 80, 40, 40, 80, 80, scale, scale, 0.0f);
+            } else {
+                if (resourceRegenerationRate > 0.01f) {
+                    batch.draw(resourceTexture, cellX * 80, cellY * 80, 40, 40, 80, 80, 0.1f, 0.1f, 0.0f);
                 }
             }
         }
     }
 
-    public void update (float dt){
+    public static final int COLUMNS_COUNT = 16;
+    public static final int ROWS_COUNT = 9;
+    public static final int CELL_SIZE = 80;
 
+    private TextureRegion grassTexture;
+    private TextureRegion resourceTexture;
+    private Cell[][] cells;
+
+    public BattleMap() {
+        this.grassTexture = Assets.getInstance().getAtlas().findRegion("grass");
+        this.resourceTexture = Assets.getInstance().getAtlas().findRegion("resource");
+        this.cells = new Cell[COLUMNS_COUNT][ROWS_COUNT];
+        for (int i = 0; i < COLUMNS_COUNT; i++) {
+            for (int j = 0; j < ROWS_COUNT; j++) {
+                cells[i][j] = new Cell(i, j);
+            }
+        }
+    }
+
+    public int getResourceCount(Tank harvester) {
+        return cells[harvester.getCellX()][harvester.getCellY()].resource;
+    }
+
+    public int harvestResource(Tank harvester, int power) {
+        int value = 0;
+        if(cells[harvester.getCellX()][harvester.getCellY()].resource >= power) {
+            value = power;
+            cells[harvester.getCellX()][harvester.getCellY()].resource -= power;
+        } else {
+            value = cells[harvester.getCellX()][harvester.getCellY()].resource;
+            cells[harvester.getCellX()][harvester.getCellY()].resource = 0;
+        }
+        return value;
     }
 
     public void render(SpriteBatch batch) {
-        for (blockY = 0; blockY < GameScreen.HEIGHT; blockY++) {
-            for (blockX = 0; blockX < GameScreen.WIDTH; blockX++) {
-                if (groundType[blockX][blockY] == 0) {
-                    batch.draw(grassTexture, blockX * 80, blockY * 80);
-                } else {
-                    batch.draw(coinTexture, blockX * 80, blockY * 80);
-                }
+        for (int i = 0; i < COLUMNS_COUNT; i++) {
+            for (int j = 0; j < ROWS_COUNT; j++) {
+                batch.draw(grassTexture, i * 80, j * 80);
+                cells[i][j].render(batch);
             }
         }
     }
 
-    public void checkCollisions (GameObject object){
-
-        for (blockY = 0; blockY < GameScreen.HEIGHT; blockY++) {
-            for (blockX = 0; blockX < GameScreen.WIDTH; blockX++) {
-                if (groundType[blockX][blockY]==1){
-                    checkCollision(object);
-                }
+    public void update(float dt) {
+        for (int i = 0; i < COLUMNS_COUNT; i++) {
+            for (int j = 0; j < ROWS_COUNT; j++) {
+                cells[i][j].update(dt);
             }
         }
-    }
-
-    private void checkCollision(GameObject object){
-        int objectX = (int)object.position.x/80;
-        int objectY = (int)object.position.y/80;
-        if ((objectX==blockX)&&(objectY==blockY)) pickUp();
-    }
-
-    public void pickUp (){
-        groundType [blockX][blockY] = 0;
     }
 }
