@@ -5,8 +5,8 @@ import com.dune.game.core.GameController;
 import com.dune.game.core.WorldRenderer;
 
 public class GameScreen extends AbstractScreen {
-    private final int SCREEN_WIDTH = 16;
-    private final int SCREEN_HEIGHT = 9;
+    public final static int WIDTH = 16;
+    public final static int HEIGHT = 9;
 
     private SpriteBatch batch;
     private GameController gameController;
@@ -18,7 +18,7 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        this.gameController = new GameController(SCREEN_WIDTH, SCREEN_HEIGHT);
+        this.gameController = new GameController(WIDTH, HEIGHT);
         this.worldRenderer = new WorldRenderer(batch, gameController);
     }
 
