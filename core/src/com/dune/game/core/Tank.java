@@ -4,9 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class Tank extends GameObject implements Poolable {
@@ -16,6 +14,8 @@ public class Tank extends GameObject implements Poolable {
     }
 
     private static final int CONTAINERS_CAPACITY=50;
+    private static final int MAX_HP=100;
+    private static final float MAX_SPEED=120.0f;
 
     private Owner ownerType;
     private Weapon weapon;
@@ -52,8 +52,8 @@ public class Tank extends GameObject implements Poolable {
         load = new StringBuilder();
         this.position.set(x, y);
         this.ownerType = ownerType;
-        this.speed = 120.0f;
-        this.hp = 100;
+        this.speed = MAX_SPEED;
+        this.hp = MAX_HP;
         this.weapon = new Weapon(Weapon.Type.HARVEST, 3.0f, 1);
         this.destination = new Vector2(position);
     }
@@ -137,6 +137,37 @@ public class Tank extends GameObject implements Poolable {
         if (position.y > 680) {
             position.y = 680;
         }
+    }
+
+    public void tryToAvoidObstacle(GameObject obstacle, float dst, float dt){
+        tmp.set(obstacle.position);
+        float obstacleAngle = tmp.sub(position).angle();
+        float angleToRotate = angle - obstacleAngle;
+        if (dst>80&&dst<100){
+            rotateFromObstacle(angleToRotate, dt);
+        }
+        if (dst<80){
+            if (!rotateFromObstacle(angleToRotate, dt)){
+                this.speed=0;
+            } else {
+                this.speed=MAX_SPEED;
+            }
+        }
+
+        if (destination.dst(obstacle.position)<80){
+            destination.set(position);
+        }
+    }
+
+    private boolean rotateFromObstacle(float angleToRotate, float dt) {
+        if (angleToRotate>0&&angleToRotate<90){
+            angle+=rotationSpeed*dt*2;
+            return false;
+        } else if (angleToRotate<=0&&angleToRotate>-90){
+            angle-=rotationSpeed*dt*2;
+            return false;
+        }
+        return true;
     }
 
     public void render(SpriteBatch batch) {
