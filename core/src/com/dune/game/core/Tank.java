@@ -23,7 +23,7 @@ public class Tank extends GameObject implements Poolable {
     private TextureRegion[] textures;
     private TextureRegion progressbarTexture;
     private BitmapFont font32;
-    StringBuilder load;
+    StringBuilder tmpText;
     private int hp;
     private float angle;
     private float speed;
@@ -49,7 +49,7 @@ public class Tank extends GameObject implements Poolable {
     public void setup(Owner ownerType, float x, float y) {
         this.textures = Assets.getInstance().getAtlas().findRegion("tankanim").split(64,64)[0];
         this.font32 = Assets.getInstance().getAssetManager().get("fonts/font32.ttf");
-        load = new StringBuilder();
+        tmpText = new StringBuilder();
         this.position.set(x, y);
         this.ownerType = ownerType;
         this.speed = MAX_SPEED;
@@ -142,8 +142,10 @@ public class Tank extends GameObject implements Poolable {
     public void tryToAvoidObstacle(GameObject obstacle, float dst, float dt){
         tmp.set(obstacle.position);
         float obstacleAngle = tmp.sub(position).angle();
+
         float angleToRotate = angle - obstacleAngle;
-        if (dst>80&&dst<100){
+
+        if (dst>80&&dst<160){
             rotateFromObstacle(angleToRotate, dt);
         }
         if (dst<80){
@@ -153,18 +155,23 @@ public class Tank extends GameObject implements Poolable {
                 this.speed=MAX_SPEED;
             }
         }
-
-        if (destination.dst(obstacle.position)<80){
-            destination.set(position);
-        }
     }
 
     private boolean rotateFromObstacle(float angleToRotate, float dt) {
         if (angleToRotate>0&&angleToRotate<90){
             angle+=rotationSpeed*dt*2;
             return false;
-        } else if (angleToRotate<=0&&angleToRotate>-90){
+        }
+        if (angleToRotate<=0&&angleToRotate>-90){
             angle-=rotationSpeed*dt*2;
+            return false;
+        }
+        if (angleToRotate>270&&angleToRotate<360){
+            angle-=rotationSpeed*dt*2;
+            return false;
+        }
+        if (angleToRotate<=-270&&angleToRotate>-360){
+            angle+=rotationSpeed*dt*2;
             return false;
         }
         return true;
@@ -181,9 +188,9 @@ public class Tank extends GameObject implements Poolable {
             batch.setColor(1.0f, 1.0f, 0.0f, 1.0f);
             batch.draw(progressbarTexture, position.x - 30, position.y + 32, 60 * weapon.getUsageTimePercentage(), 8);
             batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-            load.append(container).append("/").append(CONTAINERS_CAPACITY);
-            font32.draw(batch, load, position.x, position.y+70, 0, 1, false);
-            load.setLength(0);
+            tmpText.append(container).append("/").append(CONTAINERS_CAPACITY);
+            font32.draw(batch, tmpText, position.x, position.y+70, 0, 1, false);
+            tmpText.setLength(0);
         }
 
         if (container==CONTAINERS_CAPACITY){

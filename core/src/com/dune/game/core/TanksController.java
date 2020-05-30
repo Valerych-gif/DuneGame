@@ -52,7 +52,7 @@ public class TanksController extends ObjectPool<Tank> {
                 if (i != j) {
                     otherTank = activeList.get(j);
                     dstToObstacle = thisTank.position.dst(otherTank.position);
-                    if (dstToObstacle < 100.0f) {
+                    if (dstToObstacle < 160.0f) {
                         thisTank.tryToAvoidObstacle(otherTank, dstToObstacle, dt);
                     }
                 }
