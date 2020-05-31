@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.dune.game.core.controllers.GameController;
 
 public class WorldRenderer {
     private SpriteBatch batch;
@@ -22,7 +23,7 @@ public class WorldRenderer {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
         gc.getMap().render(batch);
-        gc.getTanksController().render(batch);
+        gc.getUc().render(batch);
         gc.getProjectilesController().render(batch);
         font32.draw(batch, "Dune Game 2020", 0, 680, 1280, 1, false);
         batch.end();

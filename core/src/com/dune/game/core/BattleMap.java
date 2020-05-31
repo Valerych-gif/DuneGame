@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.dune.game.core.objects.Unit;
 
 public class BattleMap {
     private class Cell {
@@ -72,11 +73,11 @@ public class BattleMap {
         }
     }
 
-    public int getResourceCount(Tank harvester) {
+    public int getResourceCount(Unit harvester) {
         return cells[harvester.getCellX()][harvester.getCellY()].resource;
     }
 
-    public int harvestResource(Tank harvester, int power) {
+    public int harvestResource(Unit harvester, int power) {
         int value = 0;
         if(cells[harvester.getCellX()][harvester.getCellY()].resource >= power) {
             value = power;
