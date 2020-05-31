@@ -1,6 +1,7 @@
 package com.dune.game.core;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 
 public class GameController {
@@ -31,6 +32,9 @@ public class GameController {
     }
 
     public void update(float dt) {
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            tanksController.select(Gdx.input.getX(), 720 - Gdx.input.getY());
+        }
         tanksController.update(dt);
         projectilesController.update(dt);
         map.update(dt);

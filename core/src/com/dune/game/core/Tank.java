@@ -2,22 +2,28 @@ package com.dune.game.core;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class Tank extends GameObject implements Poolable {
+
     public enum Owner {
         PLAYER, AI
     }
+
+    private static final int CONTAINERS_CAPACITY=50;
+    private static final int MAX_HP=100;
+    private static final float MAX_SPEED=120.0f;
 
     private Owner ownerType;
     private Weapon weapon;
     private Vector2 destination;
     private TextureRegion[] textures;
     private TextureRegion progressbarTexture;
+    private BitmapFont font32;
+    StringBuilder tmpText;
     private int hp;
     private float angle;
     private float speed;
@@ -26,6 +32,7 @@ public class Tank extends GameObject implements Poolable {
     private float moveTimer;
     private float timePerFrame;
     private int container;
+    private boolean isControlled;
 
     @Override
     public boolean isActive() {
@@ -41,10 +48,12 @@ public class Tank extends GameObject implements Poolable {
 
     public void setup(Owner ownerType, float x, float y) {
         this.textures = Assets.getInstance().getAtlas().findRegion("tankanim").split(64,64)[0];
+        this.font32 = Assets.getInstance().getAssetManager().get("fonts/font32.ttf");
+        tmpText = new StringBuilder();
         this.position.set(x, y);
         this.ownerType = ownerType;
-        this.speed = 120.0f;
-        this.hp = 100;
+        this.speed = MAX_SPEED;
+        this.hp = MAX_HP;
         this.weapon = new Weapon(Weapon.Type.HARVEST, 3.0f, 1);
         this.destination = new Vector2(position);
     }
@@ -53,10 +62,20 @@ public class Tank extends GameObject implements Poolable {
         return (int) (moveTimer / timePerFrame) % textures.length;
     }
 
+    public void startControl() {
+        isControlled=true;
+    }
+
+    public void stopControl() {
+        isControlled=false;
+    }
+
     public void update(float dt) {
-        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)&&isControlled) {
             destination.set(Gdx.input.getX(), 720 - Gdx.input.getY());
         }
+
+
         if (position.dst(destination) > 3.0f) {
             float angleTo = tmp.set(destination).sub(position).angle();
             if (Math.abs(angle - angleTo) > 3.0f) {
@@ -94,7 +113,7 @@ public class Tank extends GameObject implements Poolable {
 
     public void updateWeapon(float dt) {
         if (weapon.getType() == Weapon.Type.HARVEST) {
-            if (gc.getMap().getResourceCount(this) > 0) {
+            if (gc.getMap().getResourceCount(this) > 0 && container<CONTAINERS_CAPACITY) {
                 int result = weapon.use(dt);
                 if (result > -1) {
                     container += gc.getMap().harvestResource(this, result);
@@ -120,14 +139,62 @@ public class Tank extends GameObject implements Poolable {
         }
     }
 
+    public void tryToAvoidObstacle(GameObject obstacle, float dst, float dt){
+        tmp.set(obstacle.position);
+        float obstacleAngle = tmp.sub(position).angle();
+
+        float angleToRotate = angle - obstacleAngle;
+
+        if (dst>80&&dst<160){
+            rotateFromObstacle(angleToRotate, dt);
+        }
+        if (dst<80){
+            if (!rotateFromObstacle(angleToRotate, dt)){
+                this.speed=0;
+            } else {
+                this.speed=MAX_SPEED;
+            }
+        }
+    }
+
+    private boolean rotateFromObstacle(float angleToRotate, float dt) {
+        if (angleToRotate>0&&angleToRotate<90){
+            angle+=rotationSpeed*dt*2;
+            return false;
+        }
+        if (angleToRotate<=0&&angleToRotate>-90){
+            angle-=rotationSpeed*dt*2;
+            return false;
+        }
+        if (angleToRotate>270&&angleToRotate<360){
+            angle-=rotationSpeed*dt*2;
+            return false;
+        }
+        if (angleToRotate<=-270&&angleToRotate>-360){
+            angle+=rotationSpeed*dt*2;
+            return false;
+        }
+        return true;
+    }
+
     public void render(SpriteBatch batch) {
+        if (isControlled) batch.setColor(1.0f, 0.7f, 0.7f, 1.0f);
         batch.draw(textures[getCurrentFrameIndex()], position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, angle);
+        batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+
         if (weapon.getType() == Weapon.Type.HARVEST && weapon.getUsageTimePercentage() > 0.0f) {
             batch.setColor(0.2f, 0.2f, 0.0f, 1.0f);
             batch.draw(progressbarTexture, position.x - 32, position.y + 30, 64, 12);
             batch.setColor(1.0f, 1.0f, 0.0f, 1.0f);
             batch.draw(progressbarTexture, position.x - 30, position.y + 32, 60 * weapon.getUsageTimePercentage(), 8);
             batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+            tmpText.append(container).append("/").append(CONTAINERS_CAPACITY);
+            font32.draw(batch, tmpText, position.x, position.y+70, 0, 1, false);
+            tmpText.setLength(0);
+        }
+
+        if (container==CONTAINERS_CAPACITY){
+            font32.draw(batch, "Overload", position.x, position.y+70, 0, 1, false);
         }
     }
 }
