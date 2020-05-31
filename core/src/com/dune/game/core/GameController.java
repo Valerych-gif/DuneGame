@@ -65,17 +65,14 @@ public class GameController {
     }
 
     public void checkCollisions(float dt) {
-        for (int i = 0; i < tanksController.activeSize() - 1; i++) {
-            Tank t1 = tanksController.getActiveList().get(i);
-            for (int j = i + 1; j < tanksController.activeSize(); j++) {
-                Tank t2 = tanksController.getActiveList().get(j);
-                float dst = t1.getPosition().dst(t2.getPosition());
-                if (dst < 30 + 30) {
-                    float colLengthD2 = (60 - dst) / 2;
-                    tmp.set(t2.getPosition()).sub(t1.getPosition()).nor().scl(colLengthD2);
-                    t2.moveBy(tmp);
-                    tmp.scl(-1);
-                    t1.moveBy(tmp);
+        tanksController.checkCollisions();
+        for (int i = 0; i < tanksController.getActiveList().size(); i++) {
+            Tank t = tanksController.getActiveList().get(i);
+            for (int j = 0; j < projectilesController.getActiveList().size(); j++) {
+                Projectile p = projectilesController.getActiveList().get(j);
+                if (t.position.dst(p.position)<30){
+                    t.decreaseHP(2);
+                    p.deactivate();
                 }
             }
         }

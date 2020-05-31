@@ -2,6 +2,7 @@ package com.dune.game.core;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -25,6 +26,7 @@ public class Tank extends GameObject implements Poolable {
     private float angle;
     private float speed;
     private float rotationSpeed;
+    private BitmapFont font32;
 
     private float moveTimer;
     private float lifeTime;
@@ -81,6 +83,7 @@ public class Tank extends GameObject implements Poolable {
             this.weapon = new Weapon(Weapon.Type.GROUND, 1.5f, 1);
         }
         this.destination = new Vector2(position);
+        this.font32 = Assets.getInstance().getAssetManager().get("fonts/font32.ttf");
     }
 
     private int getCurrentFrameIndex() {
@@ -111,6 +114,10 @@ public class Tank extends GameObject implements Poolable {
         checkBounds();
     }
 
+    public void decreaseHP(int value){
+        hp-=value;
+    }
+
     public void commandMoveTo(Vector2 point) {
         destination.set(point);
     }
@@ -120,12 +127,14 @@ public class Tank extends GameObject implements Poolable {
     }
 
     public void updateWeapon(float dt) {
-        if (weapon.getType() == Weapon.Type.GROUND && target != null) {
+        if (weapon.getType() == Weapon.Type.GROUND && target != null&&gc.getTanksController().getActiveList().contains(target)) {
             float angleTo = tmp.set(target.position).sub(position).angle();
             weapon.setAngle(rotateTo(weapon.getAngle(), angleTo, 180.0f, dt));
             int power = weapon.use(dt);
             if (power > -1) {
-                gc.getProjectilesController().setup(position, weapon.getAngle());
+                tmp.set(position);
+                tmp.add(35 * MathUtils.cosDeg(weapon.getAngle()), 35 * MathUtils.sinDeg(weapon.getAngle()));
+                gc.getProjectilesController().setup(tmp, weapon.getAngle());
             }
         }
         if (weapon.getType() == Weapon.Type.HARVEST) {
@@ -160,6 +169,9 @@ public class Tank extends GameObject implements Poolable {
             float c = 0.7f + (float) Math.sin(lifeTime * 8.0f) * 0.3f;
             batch.setColor(c, c, c, 1.0f);
         }
+        if (this.ownerType==Owner.AI){
+            batch.setColor(0, 1, 0, 1);
+        }
         batch.draw(textures[getCurrentFrameIndex()], position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, angle);
         batch.draw(weaponsTextures[weapon.getType().getImageIndex()], position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, weapon.getAngle());
 
@@ -171,6 +183,12 @@ public class Tank extends GameObject implements Poolable {
             batch.draw(progressbarTexture, position.x - 30, position.y + 32, 60 * weapon.getUsageTimePercentage(), 8);
             batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
+
+        batch.setColor(0.2f, 0.2f, 0.0f, 1.0f);
+        batch.draw(progressbarTexture, position.x - 32, position.y + 60, 64, 12);
+        batch.setColor(1.0f, 1.0f, 0.0f, 1.0f);
+        batch.draw(progressbarTexture, position.x - 30, position.y + 62, (float)(60 * hp)/hpMax, 8);
+        batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     public float rotateTo(float srcAngle, float angleTo, float rSpeed, float dt) {

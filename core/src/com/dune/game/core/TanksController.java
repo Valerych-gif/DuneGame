@@ -61,6 +61,7 @@ public class TanksController extends ObjectPool<Tank> {
                     if (t.getWeapon().getType() == Weapon.Type.GROUND) {
                         Tank aiTank = gc.getTanksController().getNearestAiTank(tmp);
                         if (aiTank == null) {
+                            t.commandAttack(null);
                             t.commandMoveTo(tmp);
                         } else {
                             t.commandAttack(aiTank);
@@ -73,5 +74,22 @@ public class TanksController extends ObjectPool<Tank> {
 
     public void aiUpdate(float dt) {
 
+    }
+
+    public void checkCollisions(){
+        for (int i = 0; i < activeSize() - 1; i++) {
+            Tank t1 = getActiveList().get(i);
+            for (int j = i + 1; j < activeSize(); j++) {
+                Tank t2 = getActiveList().get(j);
+                float dst = t1.getPosition().dst(t2.getPosition());
+                if (dst < 30 + 30) {
+                    float colLengthD2 = (60 - dst) / 2;
+                    tmp.set(t2.getPosition()).sub(t1.getPosition()).nor().scl(colLengthD2);
+                    t2.moveBy(tmp);
+                    tmp.scl(-1);
+                    t1.moveBy(tmp);
+                }
+            }
+        }
     }
 }
