@@ -19,12 +19,14 @@ public class BattleTank extends Unit {
     // ...and weapon
     private static final float WEAPON_PERIOD = 1.5f;
     private static final int WEAPON_POWER = 1;
+    private static final float ATTACK_DISTANT = 240.0f;
 
     // Settings of rendering
     private static final float TIME_PER_FRAME = 0.08f;
 
     private Weapon weapon;
     private TextureRegion weaponsTextures;
+    private TextureRegion progressbarTexture;
     private GameObject target;
 
     public Weapon getWeapon() {
@@ -34,7 +36,7 @@ public class BattleTank extends Unit {
     public BattleTank(GameController gc) {
         super(gc);
         this.weaponsTextures = new TextureRegion(Assets.getInstance().getAtlas().findRegion("turret"));
-
+        this.progressbarTexture = Assets.getInstance().getAtlas().findRegion("progressbar");
         this.timePerFrame = TIME_PER_FRAME;
         this.rotationSpeed = MAX_ROTATION_SPEED;
     }
@@ -55,7 +57,7 @@ public class BattleTank extends Unit {
         // Если у танка есть цель, он пытается ее атаковать
         if (target != null) {
             destination.set(target.position);
-            if (position.dst(target.position) < 240.0f) {
+            if (position.dst(target.position) < ATTACK_DISTANT-10) {
                 destination.set(position);
             }
         }
@@ -94,11 +96,11 @@ public class BattleTank extends Unit {
     }
 
     public void updateWeapon(float dt) {
-        if (weapon.getType() == Weapon.Type.GROUND && target != null) {
+        if (weapon.getType() == Weapon.Type.GROUND && target != null&&target.isActive()) {
             float angleTo = tmp.set(target.position).sub(position).angle();
             weapon.setAngle(rotateTo(weapon.getAngle(), angleTo, 180.0f, dt));
             int power = weapon.use(dt);
-            if (power > -1) {
+            if (power > -1 && position.dst(target.position)<ATTACK_DISTANT) {
                 tmp.set(position);
                 tmp.add(35 * MathUtils.cosDeg(weapon.getAngle()), 35 * MathUtils.sinDeg(weapon.getAngle()));
                 gc.getPc().setup(tmp, weapon.getAngle());
@@ -116,6 +118,12 @@ public class BattleTank extends Unit {
         }
         batch.draw(textures[getCurrentFrameIndex()], position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, angle);
         batch.draw(weaponsTextures, position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, weapon.getAngle());
+
+        batch.setColor(0.2f, 0.2f, 0.0f, 1.0f);
+        batch.draw(progressbarTexture, position.x - 32, position.y + 50, 64, 12);
+        batch.setColor(1.0f, 1.0f, 0.0f, 1.0f);
+        batch.draw(progressbarTexture, position.x - 30, position.y + 52, (float)(60 * hp)/hpMax, 8);
+        batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 
         batch.setColor(1, 1, 1, 1);
 

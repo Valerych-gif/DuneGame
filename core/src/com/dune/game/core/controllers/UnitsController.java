@@ -66,7 +66,12 @@ public class UnitsController extends ObjectPool<Unit> {
 
     public void update(float dt) {
         for (int i = 0; i < unitsActiveList.size(); i++) {
-            unitsActiveList.get(i).update(dt);
+            Unit u=unitsActiveList.get(i);
+            if (u.isActive()) {
+                u.update(dt);
+            } else {
+                unitsActiveList.remove(i);
+            }
         }
         playerUpdate(dt);
         checkCollisions(dt);
