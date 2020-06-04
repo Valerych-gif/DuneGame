@@ -1,8 +1,8 @@
 package com.dune.game.screens;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.dune.game.core.GameController;
 import com.dune.game.core.WorldRenderer;
+import com.dune.game.core.controllers.GameController;
 
 public class GameScreen extends AbstractScreen {
     private SpriteBatch batch;

@@ -1,37 +1,48 @@
-package com.dune.game.core;
+package com.dune.game.core.controllers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.dune.game.core.Assets;
+import com.dune.game.core.BattleMap;
+import com.dune.game.core.objects.GameObject;
+import com.dune.game.core.objects.Projectile;
+import com.dune.game.core.objects.Unit;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class GameController {
     private BattleMap map;
-    private ProjectilesController projectilesController;
-    private TanksController tanksController;
+    private ProjectilesController pc;
+    private UnitsController uc;
+    private BattleTanksController btc;
+    private HarvestersController hc;
     private Vector2 tmp;
     private Vector2 selectionStart;
 
-    private List<Tank> selectedUnits;
+    private List<Unit> selectedUnits;
 
-    public TanksController getTanksController() {
-        return tanksController;
+    public UnitsController getUc() {
+        return uc;
     }
 
-    public List<Tank> getSelectedUnits() {
+    public BattleTanksController getBtc() {
+        return btc;
+    }
+
+    public HarvestersController getHc() {
+        return hc;
+    }
+
+    public List<Unit> getSelectedUnits() {
         return selectedUnits;
     }
 
-    public ProjectilesController getProjectilesController() {
-        return projectilesController;
+    public ProjectilesController getPc() {
+        return pc;
     }
 
     public BattleMap getMap() {
@@ -45,44 +56,38 @@ public class GameController {
         this.selectionStart = new Vector2();
         this.selectedUnits = new ArrayList<>();
         this.map = new BattleMap();
-        this.projectilesController = new ProjectilesController(this);
-        this.tanksController = new TanksController(this);
-        for (int i = 0; i < 5; i++) {
-            this.tanksController.setup(MathUtils.random(80, 1200), MathUtils.random(80, 640), Tank.Owner.PLAYER);
-        }
-        for (int i = 0; i < 2; i++) {
-            this.tanksController.setup(MathUtils.random(80, 1200), MathUtils.random(80, 640), Tank.Owner.AI);
-        }
+        this.pc = new ProjectilesController(this);
+        this.uc = new UnitsController(this);
+        this.btc = new BattleTanksController(this);
+        this.hc = new HarvestersController(this);
+        uc.setup();
+
         prepareInput();
     }
 
     public void update(float dt) {
-        tanksController.update(dt);
-        projectilesController.update(dt);
+        uc.update(dt);
+        pc.update(dt);
         map.update(dt);
         checkCollisions(dt);
-        // checkSelection();
+    }
+
+    public boolean isUnitSelected(Unit unit) {
+        return selectedUnits.contains(unit);
     }
 
     public void checkCollisions(float dt) {
-        for (int i = 0; i < tanksController.activeSize() - 1; i++) {
-            Tank t1 = tanksController.getActiveList().get(i);
-            for (int j = i + 1; j < tanksController.activeSize(); j++) {
-                Tank t2 = tanksController.getActiveList().get(j);
-                float dst = t1.getPosition().dst(t2.getPosition());
-                if (dst < 30 + 30) {
-                    float colLengthD2 = (60 - dst) / 2;
-                    tmp.set(t2.getPosition()).sub(t1.getPosition()).nor().scl(colLengthD2);
-                    t2.moveBy(tmp);
-                    tmp.scl(-1);
-                    t1.moveBy(tmp);
+        uc.checkCollisions(dt);
+        for (int i = 0; i < uc.getUnitsActiveList().size(); i++) {
+            Unit t = uc.getUnitsActiveList().get(i);
+            for (int j = 0; j < pc.getActiveList().size(); j++) {
+                Projectile p = pc.getActiveList().get(j);
+                if (t.getPosition().dst(p.getPosition())<30){
+                    t.decreaseHP(2);
+                    p.deactivate();
                 }
             }
         }
-    }
-
-    public boolean isTankSelected(Tank tank) {
-        return selectedUnits.contains(tank);
     }
 
     public void prepareInput() {
@@ -113,17 +118,17 @@ public class GameController {
 
                     selectedUnits.clear();
                     if (Math.abs(tmp.x - selectionStart.x) > 20 & Math.abs(tmp.y - selectionStart.y) > 20) {
-                        for (int i = 0; i < tanksController.getActiveList().size(); i++) {
-                            Tank t = tanksController.getActiveList().get(i);
-                            if (t.getOwnerType() == Tank.Owner.PLAYER && t.getPosition().x > selectionStart.x && t.getPosition().x < tmp.x
+                        for (int i = 0; i < uc.getUnitsActiveList().size(); i++) {
+                            Unit t = uc.getUnitsActiveList().get(i);
+                            if (t.getOwnerType() == GameObject.Owner.PLAYER && t.getPosition().x > selectionStart.x && t.getPosition().x < tmp.x
                                     && t.getPosition().y > tmp.y && t.getPosition().y < selectionStart.y
                             ) {
                                 selectedUnits.add(t);
                             }
                         }
                     } else {
-                        for (int i = 0; i < tanksController.getActiveList().size(); i++) {
-                            Tank t = tanksController.getActiveList().get(i);
+                        for (int i = 0; i < uc.getUnitsActiveList().size(); i++) {
+                            Unit t = uc.getUnitsActiveList().get(i);
                             if (t.getPosition().dst(tmp) < 30.0f) {
                                 selectedUnits.add(t);
                             }

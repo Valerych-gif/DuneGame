@@ -1,4 +1,4 @@
-package com.dune.game.core;
+package com.dune.game.core.objects;
 
 public interface Poolable {
     boolean isActive();
