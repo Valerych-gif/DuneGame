@@ -1,93 +1,75 @@
-package com.dune.game.core.controllers;
+package com.dune.game.core;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.dune.game.core.Assets;
-import com.dune.game.core.BattleMap;
-import com.dune.game.core.objects.GameObject;
-import com.dune.game.core.objects.Projectile;
-import com.dune.game.core.objects.Unit;
+import com.dune.game.core.units.AbstractUnit;
+import com.dune.game.core.units.BattleTank;
+import com.dune.game.screens.ScreenManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameController {
     private BattleMap map;
-    private ProjectilesController pc;
-    private UnitsController uc;
-    private BattleTanksController btc;
-    private HarvestersController hc;
+    private PlayerLogic playerLogic;
+    private ProjectilesController projectilesController;
+    private UnitsController unitsController;
     private Vector2 tmp;
     private Vector2 selectionStart;
+    private Vector2 mouse;
+    private Collider collider;
 
-    private List<Unit> selectedUnits;
+    private List<AbstractUnit> selectedUnits;
 
-    public UnitsController getUc() {
-        return uc;
+    public UnitsController getUnitsController() {
+        return unitsController;
     }
 
-    public BattleTanksController getBtc() {
-        return btc;
-    }
-
-    public HarvestersController getHc() {
-        return hc;
-    }
-
-    public List<Unit> getSelectedUnits() {
+    public List<AbstractUnit> getSelectedUnits() {
         return selectedUnits;
     }
 
-    public ProjectilesController getPc() {
-        return pc;
+    public Vector2 getMouse() {
+        return mouse;
+    }
+
+    public ProjectilesController getProjectilesController() {
+        return projectilesController;
     }
 
     public BattleMap getMap() {
         return map;
     }
 
-    // Инициализация игровой логики
     public GameController() {
-        Assets.getInstance().loadAssets();
+        this.mouse = new Vector2();
         this.tmp = new Vector2();
+        this.playerLogic = new PlayerLogic(this);
+        this.collider = new Collider(this);
         this.selectionStart = new Vector2();
         this.selectedUnits = new ArrayList<>();
         this.map = new BattleMap();
-        this.pc = new ProjectilesController(this);
-        this.uc = new UnitsController(this);
-        this.btc = new BattleTanksController(this);
-        this.hc = new HarvestersController(this);
-        uc.setup();
-
+        this.projectilesController = new ProjectilesController(this);
+        this.unitsController = new UnitsController(this);
         prepareInput();
     }
 
     public void update(float dt) {
-        uc.update(dt);
-        pc.update(dt);
+        mouse.set(Gdx.input.getX(), Gdx.input.getY());
+        ScreenManager.getInstance().getViewport().unproject(mouse);
+        unitsController.update(dt);
+        playerLogic.update(dt);
+        projectilesController.update(dt);
         map.update(dt);
-        checkCollisions(dt);
+        collider.checkCollisions();
     }
 
-    public boolean isUnitSelected(Unit unit) {
-        return selectedUnits.contains(unit);
-    }
-
-    public void checkCollisions(float dt) {
-        uc.checkCollisions(dt);
-        for (int i = 0; i < uc.getUnitsActiveList().size(); i++) {
-            Unit t = uc.getUnitsActiveList().get(i);
-            for (int j = 0; j < pc.getActiveList().size(); j++) {
-                Projectile p = pc.getActiveList().get(j);
-                if (t.getPosition().dst(p.getPosition())<30){
-                    t.decreaseHP(2);
-                    p.deactivate();
-                }
-            }
-        }
+    public boolean isUnitSelected(AbstractUnit abstractUnit) {
+        return selectedUnits.contains(abstractUnit);
     }
 
     public void prepareInput() {
@@ -95,7 +77,7 @@ public class GameController {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if (button == Input.Buttons.LEFT) {
-                    selectionStart.set(screenX, 720 - screenY);
+                    selectionStart.set(mouse);
                 }
                 return true;
             }
@@ -103,7 +85,7 @@ public class GameController {
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 if (button == Input.Buttons.LEFT) {
-                    tmp.set(Gdx.input.getX(), 720 - Gdx.input.getY());
+                    tmp.set(mouse);
 
                     if (tmp.x < selectionStart.x) {
                         float t = tmp.x;
@@ -118,17 +100,17 @@ public class GameController {
 
                     selectedUnits.clear();
                     if (Math.abs(tmp.x - selectionStart.x) > 20 & Math.abs(tmp.y - selectionStart.y) > 20) {
-                        for (int i = 0; i < uc.getUnitsActiveList().size(); i++) {
-                            Unit t = uc.getUnitsActiveList().get(i);
-                            if (t.getOwnerType() == GameObject.Owner.PLAYER && t.getPosition().x > selectionStart.x && t.getPosition().x < tmp.x
+                        for (int i = 0; i < unitsController.getPlayerUnits().size(); i++) {
+                            AbstractUnit t = unitsController.getPlayerUnits().get(i);
+                            if (t.getPosition().x > selectionStart.x && t.getPosition().x < tmp.x
                                     && t.getPosition().y > tmp.y && t.getPosition().y < selectionStart.y
                             ) {
                                 selectedUnits.add(t);
                             }
                         }
                     } else {
-                        for (int i = 0; i < uc.getUnitsActiveList().size(); i++) {
-                            Unit t = uc.getUnitsActiveList().get(i);
+                        for (int i = 0; i < unitsController.getUnits().size(); i++) {
+                            AbstractUnit t = unitsController.getUnits().get(i);
                             if (t.getPosition().dst(tmp) < 30.0f) {
                                 selectedUnits.add(t);
                             }

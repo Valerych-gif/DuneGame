@@ -1,6 +1,4 @@
-package com.dune.game.core.controllers;
-
-import com.dune.game.core.objects.Poolable;
+package com.dune.game.core;
 
 import java.util.ArrayList;
 import java.util.List;
