@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;
 import com.dune.game.core.units.Owner;
+import com.dune.game.screens.ScreenManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,5 +91,39 @@ public class UnitsController {
             }
         }
         return null;
+    }
+
+    public AbstractUnit getNearestPlayerUnit(Vector2 point) {
+        AbstractUnit nearestPlayerUnit = null;
+        float dstToNearestPlayerUnit = 1_000_000f;
+        for (int i = 0; i < aiUnits.size(); i++) {
+            AbstractUnit u = aiUnits.get(i);
+            float dstToCurrentUnit = u.getPosition().dst(point);
+            if (dstToCurrentUnit < dstToNearestPlayerUnit) {
+                dstToNearestPlayerUnit=dstToCurrentUnit;
+                nearestPlayerUnit=u;
+            }
+        }
+        return nearestPlayerUnit;
+    }
+
+    public Vector2 getNearestResourcePosition(Vector2 point){
+        Vector2 nearestResourcePosition = new Vector2(1_000_000f, 1_000_000f);
+        Vector2 cellPosition;
+        BattleMap battleMap = gc.getMap();
+        for (int cellY = 0; cellY < BattleMap.ROWS_COUNT; cellY++) {
+            for (int cellX = 0; cellX < BattleMap.COLUMNS_COUNT; cellX++) {
+                float x=cellX*BattleMap.CELL_SIZE;
+                float y=cellY*BattleMap.CELL_SIZE;
+                cellPosition= new Vector2(x, y);
+                if (battleMap.getResourceCount(cellPosition)>0){
+                    float dstToCurrentResource = point.dst(x, y);
+                    if (dstToCurrentResource<point.dst(nearestResourcePosition)){
+                        nearestResourcePosition.set(x,y);
+                    }
+                }
+            }
+        }
+        return nearestResourcePosition;
     }
 }

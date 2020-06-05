@@ -8,13 +8,17 @@ import com.dune.game.core.units.BattleTank;
 import com.dune.game.core.units.Harvester;
 
 public class BattleMap {
-    private class Cell {
+    class Cell {
         private int cellX, cellY;
         private int resource;
         private float resourceRegenerationRate;
         private float resourceRegenerationTime;
 
-        public Cell(int cellX, int cellY) {
+        public int getResource() {
+            return resource;
+        }
+
+        private Cell(int cellX, int cellY) {
             this.cellX = cellX;
             this.cellY = cellY;
             if (MathUtils.random() < 0.1f) {
@@ -60,6 +64,11 @@ public class BattleMap {
 
     private TextureRegion grassTexture;
     private TextureRegion resourceTexture;
+
+    public Cell[][] getCells() {
+        return cells;
+    }
+
     private Cell[][] cells;
 
     public BattleMap() {

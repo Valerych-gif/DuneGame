@@ -16,6 +16,7 @@ import java.util.List;
 public class GameController {
     private BattleMap map;
     private PlayerLogic playerLogic;
+    private AiLogic aiLogic;
     private ProjectilesController projectilesController;
     private UnitsController unitsController;
     private Vector2 tmp;
@@ -49,6 +50,7 @@ public class GameController {
         this.mouse = new Vector2();
         this.tmp = new Vector2();
         this.playerLogic = new PlayerLogic(this);
+        this.aiLogic = new AiLogic(this);
         this.collider = new Collider(this);
         this.selectionStart = new Vector2();
         this.selectedUnits = new ArrayList<>();
@@ -63,6 +65,7 @@ public class GameController {
         ScreenManager.getInstance().getViewport().unproject(mouse);
         unitsController.update(dt);
         playerLogic.update(dt);
+        aiLogic.update(dt);
         projectilesController.update(dt);
         map.update(dt);
         collider.checkCollisions();
