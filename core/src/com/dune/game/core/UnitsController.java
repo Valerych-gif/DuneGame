@@ -96,8 +96,8 @@ public class UnitsController {
     public AbstractUnit getNearestPlayerUnit(Vector2 point) {
         AbstractUnit nearestPlayerUnit = null;
         float dstToNearestPlayerUnit = 1_000_000f;
-        for (int i = 0; i < aiUnits.size(); i++) {
-            AbstractUnit u = aiUnits.get(i);
+        for (int i = 0; i < playerUnits.size(); i++) {
+            AbstractUnit u = playerUnits.get(i);
             float dstToCurrentUnit = u.getPosition().dst(point);
             if (dstToCurrentUnit < dstToNearestPlayerUnit) {
                 dstToNearestPlayerUnit=dstToCurrentUnit;
