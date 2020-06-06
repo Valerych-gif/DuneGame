@@ -41,6 +41,7 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
         }
         hp -= damage;
         if (hp <= 0) {
+            target=null;
             return true;
         }
         return false;

@@ -52,6 +52,14 @@ public class UnitsController {
         }
     }
 
+    public void buildUnit(Owner owner){
+       if (MathUtils.random()<0.8f){
+           gc.getUnitsController().createBattleTank(owner, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+       } else {
+           gc.getUnitsController().createHarvester(owner, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+       }
+    }
+
     public void createBattleTank(Owner owner, float x, float y) {
         battleTanksController.setup(x, y, owner);
     }
@@ -121,7 +129,7 @@ public class UnitsController {
                 cellPosition= new Vector2(x, y);
                 if (battleMap.getResourceCount(cellPosition)>0){
                     float dstToCurrentResource = unit.getPosition().dst(x, y);
-                    if (!unit.getOwnerType().equals(battleMap.getApplicant(cellX, cellY))&&dstToCurrentResource<unit.getPosition().dst(nearestResourcePosition)){
+                    if (unit.isActive()&&!unit.getOwnerType().equals(battleMap.getApplicant(cellX, cellY))&&dstToCurrentResource<unit.getPosition().dst(nearestResourcePosition)){
                         nearestResourcePosition.set(x,y);
                         blockX=cellX;
                         blockY=cellY;
