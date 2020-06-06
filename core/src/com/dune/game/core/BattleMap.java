@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.units.BattleTank;
 import com.dune.game.core.units.Harvester;
+import com.dune.game.core.units.Owner;
 
 public class BattleMap {
     class Cell {
@@ -13,6 +14,7 @@ public class BattleMap {
         private int resource;
         private float resourceRegenerationRate;
         private float resourceRegenerationTime;
+        private Owner applicant;
 
         public int getResource() {
             return resource;
@@ -21,6 +23,7 @@ public class BattleMap {
         private Cell(int cellX, int cellY) {
             this.cellX = cellX;
             this.cellY = cellY;
+            applicant = null;
             if (MathUtils.random() < 0.1f) {
                 resource = MathUtils.random(1, 3);
             }
@@ -86,6 +89,14 @@ public class BattleMap {
         int cx = (int) (point.x / CELL_SIZE);
         int cy = (int) (point.y / CELL_SIZE);
         return cells[cx][cy].resource;
+    }
+
+    public Owner getApplicant(int cx, int cy){
+        return cells[cx][cy].applicant;
+    }
+
+    public void setApplicant(Owner applicant, int cx, int cy){
+        cells[cx][cy].applicant=applicant;
     }
 
     public int harvestResource(Vector2 point, int power) {
