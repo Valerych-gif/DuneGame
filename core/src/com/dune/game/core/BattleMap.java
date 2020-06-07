@@ -55,7 +55,7 @@ public class BattleMap {
     }
 
     public class Base{
-        public static final float SIZE=200.0f;
+        public static final float SIZE=120.0f;
 
         Vector2 position;
         Owner owner;
@@ -73,8 +73,16 @@ public class BattleMap {
             this.owner=owner;
         }
 
-        public void render(){
-
+        public void render(SpriteBatch batch){
+            batch.setColor(0.2f, 0.2f, 0.0f, 0.5f);
+            int cx = (int)position.x/CELL_SIZE;
+            int cy = (int)position.y/CELL_SIZE;
+            for (int i = cy-1; i < cy+2; i++) {
+                for (int j = cx-1; j < cx+2; j++) {
+                    batch.draw(grassTexture, j * 80, i * 80);
+                }
+            }
+            batch.setColor(1, 1, 1, 1);
         }
     }
 
@@ -110,8 +118,6 @@ public class BattleMap {
         this.playerBase = new Base(new Vector2(200.0f, 200.0f), Owner.PLAYER);
         this.aiBase = new Base(new Vector2(MAP_WIDTH_PX-200.0f, MAP_HEIGHT_PX-200.0f), Owner.AI);
         this.cells = new Cell[COLUMNS_COUNT][ROWS_COUNT];
-        int resource = 0;
-        float resourceRegenerationRate=-0.5f;
         for (int i = 0; i < COLUMNS_COUNT; i++) {
             for (int j = 0; j < ROWS_COUNT; j++) {
                 putResource(i, j);
@@ -177,7 +183,8 @@ public class BattleMap {
                 cells[i][j].render(batch);
             }
         }
-
+        aiBase.render(batch);
+        playerBase.render(batch);
     }
 
     public void update(float dt) {

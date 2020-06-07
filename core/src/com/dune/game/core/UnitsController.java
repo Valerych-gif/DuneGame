@@ -49,7 +49,7 @@ public class UnitsController {
     }
 
     private void setup() {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 3; i++) {
             createHarvester(
                     Owner.PLAYER,
                     MathUtils.random(BattleMap.CELL_SIZE, BattleMap.CELL_SIZE*4),
@@ -57,7 +57,7 @@ public class UnitsController {
             );
         }
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 3; i++) {
             createHarvester(
                     Owner.AI,
                     MathUtils.random(BattleMap.MAP_WIDTH_PX-BattleMap.CELL_SIZE*4, BattleMap.MAP_WIDTH_PX-BattleMap.CELL_SIZE),
@@ -68,10 +68,14 @@ public class UnitsController {
     }
 
     public void buildUnit(Owner owner){
-       if (MathUtils.random()<0.8f){
-           gc.getUnitsController().createBattleTank(owner, MathUtils.random(80, 1200), MathUtils.random(80, 640));
-       } else {
-           gc.getUnitsController().createHarvester(owner, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+       if (owner.equals(Owner.AI)) {
+           if (MathUtils.random() < 0.8f) {
+               gc.getUnitsController().createBattleTank(owner, gc.getMap().getAiBase().getPosition().x, gc.getMap().getAiBase().getPosition().y);
+               gc.getAiLogic().decreaseMoney(50);
+           } else {
+               gc.getUnitsController().createHarvester(owner, gc.getMap().getAiBase().getPosition().x, gc.getMap().getAiBase().getPosition().y);
+               gc.getAiLogic().decreaseMoney(100);
+           }
        }
     }
 
@@ -141,7 +145,7 @@ public class UnitsController {
                 if (battleMap.getResourceCount(tmp)>0){
                     if (!checkApplicant(unit, cellX, cellY)) {
                         float dstToCurrentResource = unit.getPosition().dst(tmp);
-                        if (unit.isActive() && dstToCurrentResource < unit.getPosition().dst(nearestResourcePosition)) {
+                        if (dstToCurrentResource < unit.getPosition().dst(nearestResourcePosition)) {
                             nearestResourcePosition.set(tmp);
                             blockX = cellX;
                             blockY = cellY;

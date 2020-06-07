@@ -79,6 +79,14 @@ public class GameController {
         return map;
     }
 
+    public PlayerLogic getPlayerLogic() {
+        return playerLogic;
+    }
+
+    public AiLogic getAiLogic() {
+        return aiLogic;
+    }
+
     public GameController() {
         this.mouse = new Vector2();
         this.tmp = new Vector2();

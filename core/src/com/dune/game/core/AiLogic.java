@@ -2,6 +2,7 @@ package com.dune.game.core;
 
 import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.units.AbstractUnit;
+import com.dune.game.core.units.Owner;
 import com.dune.game.core.units.UnitType;
 
 public class AiLogic {
@@ -14,7 +15,7 @@ public class AiLogic {
 
     public AiLogic(GameController gc) {
         this.gc = gc;
-        this.money = 1000;
+        this.money = 100;
         this.unitsMaxCount = 100;
     }
 
@@ -24,6 +25,14 @@ public class AiLogic {
             unitProcessing(aiUnit);
         }
         this.unitsCount=gc.getUnitsController().getAiUnits().size();
+        if (money>=100&&unitsCount<unitsMaxCount){
+            gc.getUnitsController().buildUnit(Owner.AI);
+
+        }
+    }
+
+    public void decreaseMoney(int value){
+        money-=value;
     }
 
     public void unitProcessing(AbstractUnit unit) {

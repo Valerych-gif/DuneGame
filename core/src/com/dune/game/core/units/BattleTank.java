@@ -37,7 +37,7 @@ public class BattleTank extends AbstractUnit {
             float angleTo = tmp.set(target.getPosition()).sub(position).angle();
             weapon.setAngle(rotateTo(weapon.getAngle(), angleTo, 180.0f, dt));
             int power = weapon.use(dt);
-            if (power > -1) {
+            if (power > -1&&position.dst(target.getPosition())<minDstToActiveTarget) {
                 gc.getProjectilesController().setup(this, position, weapon.getAngle());
             }
         }
