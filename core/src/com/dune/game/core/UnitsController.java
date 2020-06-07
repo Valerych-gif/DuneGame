@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;
 import com.dune.game.core.units.Owner;
+import com.dune.game.screens.ScreenManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,14 @@ public class UnitsController {
         }
     }
 
+    public void buildUnit(Owner owner){
+       if (MathUtils.random()<0.8f){
+           gc.getUnitsController().createBattleTank(owner, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+       } else {
+           gc.getUnitsController().createHarvester(owner, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+       }
+    }
+
     public void createBattleTank(Owner owner, float x, float y) {
         battleTanksController.setup(x, y, owner);
     }
@@ -88,6 +97,52 @@ public class UnitsController {
             if (u.getPosition().dst(point) < 30) {
                 return u;
             }
+        }
+        return null;
+    }
+
+    public AbstractUnit getNearestPlayerUnit(Vector2 point) {
+        AbstractUnit nearestPlayerUnit = null;
+        float dstToNearestPlayerUnit = 1_000_000f;
+        for (int i = 0; i < playerUnits.size(); i++) {
+            AbstractUnit u = playerUnits.get(i);
+            float dstToCurrentUnit = u.getPosition().dst(point);
+            if (dstToCurrentUnit < dstToNearestPlayerUnit) {
+                dstToNearestPlayerUnit=dstToCurrentUnit;
+                nearestPlayerUnit=u;
+            }
+        }
+        return nearestPlayerUnit;
+    }
+
+    public Vector2 getNearestResourcePosition(AbstractUnit unit){
+        Vector2 nearestResourcePosition = new Vector2(1_000_000f, 1_000_000f);
+        Vector2 cellPosition;
+        BattleMap battleMap = gc.getMap();
+        boolean isResourceFound =false;
+        int blockX=BattleMap.COLUMNS_COUNT;
+        int blockY=BattleMap.ROWS_COUNT;
+        for (int cellY = 0; cellY < BattleMap.ROWS_COUNT; cellY++) {
+            for (int cellX = 0; cellX < BattleMap.COLUMNS_COUNT; cellX++) {
+                float x=cellX*BattleMap.CELL_SIZE;
+                float y=cellY*BattleMap.CELL_SIZE;
+                cellPosition= new Vector2(x, y);
+                if (battleMap.getResourceCount(cellPosition)>0){
+                    float dstToCurrentResource = unit.getPosition().dst(x, y);
+                    if (unit.isActive()&&!unit.getOwnerType().equals(battleMap.getApplicant(cellX, cellY))&&dstToCurrentResource<unit.getPosition().dst(nearestResourcePosition)){
+                        nearestResourcePosition.set(x,y);
+                        blockX=cellX;
+                        blockY=cellY;
+                        isResourceFound = true;
+                    } else {
+                        battleMap.setApplicant(null, cellX, cellY);
+                    }
+                }
+            }
+        }
+        if (isResourceFound) {
+            battleMap.setApplicant(unit.getOwnerType(), blockX, blockY);
+            return nearestResourcePosition;
         }
         return null;
     }

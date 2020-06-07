@@ -1,6 +1,7 @@
 package com.dune.game.core.units;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.Assets;
 import com.dune.game.core.GameController;
@@ -34,7 +35,8 @@ public class Harvester extends AbstractUnit {
             if (result > -1) {
                 container += gc.getMap().harvestResource(position, result);
                 if (container > containerCapacity) {
-                    container = containerCapacity;
+                    container = 0;
+                    gc.getUnitsController().buildUnit(this.ownerType);
                 }
             }
         } else {
@@ -52,9 +54,9 @@ public class Harvester extends AbstractUnit {
         super.renderGui(batch);
         if (weapon.getUsageTimePercentage() > 0.0f) {
             batch.setColor(0.2f, 0.2f, 0.0f, 1.0f);
-            batch.draw(progressbarTexture, position.x - 20, position.y + 30, 64, 12);
+            batch.draw(progressbarTexture, position.x - 32, position.y + 50, 64, 12);
             batch.setColor(1.0f, 1.0f, 0.0f, 1.0f);
-            batch.draw(progressbarTexture, position.x - 18, position.y + 32, 60 * weapon.getUsageTimePercentage(), 8);
+            batch.draw(progressbarTexture, position.x - 30, position.y + 52, 60 * weapon.getUsageTimePercentage(), 8);
             batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
