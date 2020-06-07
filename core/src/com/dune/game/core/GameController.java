@@ -94,6 +94,8 @@ public class GameController {
         this.unitsController = new UnitsController(this);
         this.pointOfView = new Vector2(ScreenManager.HALF_WORLD_WIDTH, ScreenManager.HALF_WORLD_HEIGHT);
         createGuiAndPrepareGameInput();
+
+        playerLogic.setup();
     }
 
     public void update(float dt) {

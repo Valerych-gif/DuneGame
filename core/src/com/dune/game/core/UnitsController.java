@@ -15,9 +15,13 @@ public class UnitsController {
     private GameController gc;
     private BattleTanksController battleTanksController;
     private HarvestersController harvestersController;
+    private BattleMap battleMap;
     private List<AbstractUnit> units;
     private List<AbstractUnit> playerUnits;
     private List<AbstractUnit> aiUnits;
+
+    Vector2 nearestResourcePosition;
+    Vector2 tmp;
 
     public List<AbstractUnit> getUnits() {
         return units;
@@ -35,21 +39,32 @@ public class UnitsController {
         this.gc = gc;
         this.battleTanksController = new BattleTanksController(gc);
         this.harvestersController = new HarvestersController(gc);
+        this.battleMap = gc.getMap();
         this.units = new ArrayList<>();
         this.playerUnits = new ArrayList<>();
         this.aiUnits = new ArrayList<>();
+        nearestResourcePosition = new Vector2();
+        tmp = new Vector2();
+        setup();
+    }
+
+    private void setup() {
         for (int i = 0; i < 5; i++) {
-            createBattleTank(Owner.PLAYER, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+            createHarvester(
+                    Owner.PLAYER,
+                    MathUtils.random(BattleMap.CELL_SIZE, BattleMap.CELL_SIZE*4),
+                    MathUtils.random(BattleMap.CELL_SIZE, BattleMap.CELL_SIZE*4)
+            );
         }
-        for (int i = 0; i < 2; i++) {
-            createHarvester(Owner.PLAYER, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+
+        for (int i = 0; i < 5; i++) {
+            createHarvester(
+                    Owner.AI,
+                    MathUtils.random(BattleMap.MAP_WIDTH_PX-BattleMap.CELL_SIZE*4, BattleMap.MAP_WIDTH_PX-BattleMap.CELL_SIZE),
+                    MathUtils.random(BattleMap.MAP_HEIGHT_PX-BattleMap.CELL_SIZE*4, BattleMap.MAP_HEIGHT_PX-BattleMap.CELL_SIZE)
+            );
         }
-        for (int i = 0; i < 2; i++) {
-            createBattleTank(Owner.AI, MathUtils.random(80, 1200), MathUtils.random(80, 640));
-        }
-        for (int i = 0; i < 2; i++) {
-            createHarvester(Owner.AI, MathUtils.random(80, 1200), MathUtils.random(80, 640));
-        }
+
     }
 
     public void buildUnit(Owner owner){
@@ -116,34 +131,38 @@ public class UnitsController {
     }
 
     public Vector2 getNearestResourcePosition(AbstractUnit unit){
-        Vector2 nearestResourcePosition = new Vector2(1_000_000f, 1_000_000f);
-        Vector2 cellPosition;
-        BattleMap battleMap = gc.getMap();
+        nearestResourcePosition.set(BattleMap.MAP_WIDTH_PX*2, BattleMap.MAP_HEIGHT_PX*2);
         boolean isResourceFound =false;
         int blockX=BattleMap.COLUMNS_COUNT;
         int blockY=BattleMap.ROWS_COUNT;
         for (int cellY = 0; cellY < BattleMap.ROWS_COUNT; cellY++) {
             for (int cellX = 0; cellX < BattleMap.COLUMNS_COUNT; cellX++) {
-                float x=cellX*BattleMap.CELL_SIZE;
-                float y=cellY*BattleMap.CELL_SIZE;
-                cellPosition= new Vector2(x, y);
-                if (battleMap.getResourceCount(cellPosition)>0){
-                    float dstToCurrentResource = unit.getPosition().dst(x, y);
-                    if (unit.isActive()&&!unit.getOwnerType().equals(battleMap.getApplicant(cellX, cellY))&&dstToCurrentResource<unit.getPosition().dst(nearestResourcePosition)){
-                        nearestResourcePosition.set(x,y);
-                        blockX=cellX;
-                        blockY=cellY;
-                        isResourceFound = true;
-                    } else {
-                        battleMap.setApplicant(null, cellX, cellY);
+                tmp.set(cellX*BattleMap.CELL_SIZE, cellY*BattleMap.CELL_SIZE);
+                if (battleMap.getResourceCount(tmp)>0){
+                    if (!checkApplicant(unit, cellX, cellY)) {
+                        float dstToCurrentResource = unit.getPosition().dst(tmp);
+                        if (unit.isActive() && dstToCurrentResource < unit.getPosition().dst(nearestResourcePosition)) {
+                            nearestResourcePosition.set(tmp);
+                            blockX = cellX;
+                            blockY = cellY;
+                            isResourceFound = true;
+                        }
                     }
                 }
             }
         }
         if (isResourceFound) {
-            battleMap.setApplicant(unit.getOwnerType(), blockX, blockY);
+            battleMap.setApplicant(unit, blockX, blockY);
             return nearestResourcePosition;
         }
         return null;
+    }
+
+    private boolean checkApplicant(AbstractUnit unit, int cellX, int cellY){
+        return (
+                battleMap.getApplicant(cellX, cellY)!=null
+                &&unit.getOwnerType().equals(battleMap.getApplicant(cellX, cellY).getOwnerType()))
+                &&!unit.equals(battleMap.getApplicant(cellX, cellY)
+        );
     }
 }

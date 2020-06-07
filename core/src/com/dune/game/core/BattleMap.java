@@ -4,36 +4,29 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;
 import com.dune.game.core.units.Harvester;
 import com.dune.game.core.units.Owner;
 
 public class BattleMap {
-    class Cell {
+    private class Cell {
         private int cellX, cellY;
         private int resource;
         private float resourceRegenerationRate;
         private float resourceRegenerationTime;
-        private Owner applicant;
+        private AbstractUnit applicant;
 
         public int getResource() {
             return resource;
         }
 
-        private Cell(int cellX, int cellY) {
+        private Cell(int cellX, int cellY, int resource, float resourceRegenerationRate) {
             this.cellX = cellX;
             this.cellY = cellY;
-            applicant = null;
-            if (MathUtils.random() < 0.1f) {
-                resource = MathUtils.random(1, 3);
-            }
-            resourceRegenerationRate = MathUtils.random(5.0f) - 4.5f;
-            if (resourceRegenerationRate < 0.0f) {
-                resourceRegenerationRate = 0.0f;
-            } else {
-                resourceRegenerationRate *= 20.0f;
-                resourceRegenerationRate += 10.0f;
-            }
+            this.applicant = null;
+            this.resource=resource;
+            this.resourceRegenerationRate=resourceRegenerationRate;
         }
 
         private void update(float dt) {
@@ -61,6 +54,30 @@ public class BattleMap {
         }
     }
 
+    public class Base{
+        public static final float SIZE=200.0f;
+
+        Vector2 position;
+        Owner owner;
+
+        public Vector2 getPosition() {
+            return position;
+        }
+
+        public Owner getOwner() {
+            return owner;
+        }
+
+        public Base (Vector2 position, Owner owner){
+            this.position=position;
+            this.owner=owner;
+        }
+
+        public void render(){
+
+        }
+    }
+
     public static final int COLUMNS_COUNT = 32;
     public static final int ROWS_COUNT = 18;
     public static final int CELL_SIZE = 80;
@@ -70,8 +87,19 @@ public class BattleMap {
     private TextureRegion grassTexture;
     private TextureRegion resourceTexture;
 
+    private Base aiBase;
+    private Base playerBase;
+
     public Cell[][] getCells() {
         return cells;
+    }
+
+    public Base getAiBase() {
+        return aiBase;
+    }
+
+    public Base getPlayerBase() {
+        return playerBase;
     }
 
     private Cell[][] cells;
@@ -79,12 +107,39 @@ public class BattleMap {
     public BattleMap() {
         this.grassTexture = Assets.getInstance().getAtlas().findRegion("grass");
         this.resourceTexture = Assets.getInstance().getAtlas().findRegion("resource");
+        this.playerBase = new Base(new Vector2(200.0f, 200.0f), Owner.PLAYER);
+        this.aiBase = new Base(new Vector2(MAP_WIDTH_PX-200.0f, MAP_HEIGHT_PX-200.0f), Owner.AI);
         this.cells = new Cell[COLUMNS_COUNT][ROWS_COUNT];
+        int resource = 0;
+        float resourceRegenerationRate=-0.5f;
         for (int i = 0; i < COLUMNS_COUNT; i++) {
             for (int j = 0; j < ROWS_COUNT; j++) {
-                cells[i][j] = new Cell(i, j);
+                putResource(i, j);
             }
         }
+    }
+
+    private void putResource(int i, int j) {
+        float resourceRegenerationRate = 0.0f;
+        int resource = 0;
+
+        if (i>2&&j>2&&i<COLUMNS_COUNT-2&&j<ROWS_COUNT-2) {
+            if (MathUtils.random() < 0.1f) {
+                resource = MathUtils.random(1, 3);
+            }
+        }
+
+        if (i>5&&j>5&&i<COLUMNS_COUNT-5&&j<ROWS_COUNT-5) {
+            resourceRegenerationRate = MathUtils.random(5.0f) - 4.5f;
+            if (resourceRegenerationRate < 0.0f) {
+                resourceRegenerationRate = 0.0f;
+            } else {
+                resourceRegenerationRate *= 20.0f;
+                resourceRegenerationRate += 10.0f;
+            }
+        }
+        cells[i][j] = new Cell(i, j, resource, resourceRegenerationRate);
+        
     }
 
     public int getResourceCount(Vector2 point) {
@@ -93,11 +148,11 @@ public class BattleMap {
         return cells[cx][cy].resource;
     }
 
-    public Owner getApplicant(int cx, int cy){
+    public AbstractUnit getApplicant(int cx, int cy){
         return cells[cx][cy].applicant;
     }
 
-    public void setApplicant(Owner applicant, int cx, int cy){
+    public void setApplicant(AbstractUnit applicant, int cx, int cy){
         cells[cx][cy].applicant=applicant;
     }
 
@@ -122,6 +177,7 @@ public class BattleMap {
                 cells[i][j].render(batch);
             }
         }
+
     }
 
     public void update(float dt) {

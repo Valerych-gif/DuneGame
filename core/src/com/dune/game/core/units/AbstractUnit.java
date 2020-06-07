@@ -36,6 +36,10 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
         return TargetType.UNIT;
     }
 
+    public Vector2 getDestination() {
+        return destination;
+    }
+
     public boolean takeDamage(int damage) {
         if (!isActive()) {
             return false;
@@ -53,6 +57,20 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
 
     public Weapon getWeapon() {
         return weapon;
+    }
+
+    public int getContainer() {
+        return container;
+    }
+
+    public int getContainerCapacity() {
+        return containerCapacity;
+    }
+
+    public int emptyContainer(){
+        int value=container;
+        container=0;
+        return value;
     }
 
     public void moveBy(Vector2 value) {
