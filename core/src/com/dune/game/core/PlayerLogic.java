@@ -40,21 +40,21 @@ public class PlayerLogic {
 
         this.unitsCount = gc.getUnitsController().getPlayerUnits().size();
 
-//        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
-//            for (int i = 0; i < gc.getSelectedUnits().size(); i++) {
-//                AbstractUnit u = gc.getSelectedUnits().get(i);
-//                if (u.getOwnerType() == Owner.PLAYER) {
-//                    unitProcessing(u);
-//                }
-//            }
-//        } else {
+        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+            for (int i = 0; i < gc.getSelectedUnits().size(); i++) {
+                AbstractUnit u = gc.getSelectedUnits().get(i);
+                if (u.getOwnerType() == Owner.PLAYER) {
+                    unitProcessing(u);
+                }
+            }
+        } else {
             for (int i = 0; i < unitsCount; i++) {
                 AbstractUnit u = gc.getUnitsController().getPlayerUnits().get(i);
-                //if (u.getPosition().dst(u.getDestination())<5.0f) {
+                if (u.getPosition().dst(u.getDestination())<5.0f) {
                     unitSelfCommand(u);
-                //}
+                }
             }
-        //}
+        }
     }
 
     private void unitProcessing(AbstractUnit unit) {
