@@ -43,6 +43,10 @@ public class ScreenManager {
         return camera;
     }
 
+    public SpriteBatch getBatch() {
+        return batch;
+    }
+
     private ScreenManager() {
     }
 

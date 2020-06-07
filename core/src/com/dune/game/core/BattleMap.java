@@ -61,9 +61,11 @@ public class BattleMap {
         }
     }
 
-    public static final int COLUMNS_COUNT = 16;
-    public static final int ROWS_COUNT = 9;
+    public static final int COLUMNS_COUNT = 32;
+    public static final int ROWS_COUNT = 18;
     public static final int CELL_SIZE = 80;
+    public static final int MAP_HEIGHT_PX = ROWS_COUNT * CELL_SIZE;
+    public static final int MAP_WIDTH_PX = COLUMNS_COUNT * CELL_SIZE;
 
     private TextureRegion grassTexture;
     private TextureRegion resourceTexture;

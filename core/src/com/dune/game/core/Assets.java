@@ -43,6 +43,7 @@ public class Assets {
                 break;
             case GAME:
                 assetManager.load("images/game.pack", TextureAtlas.class);
+                createStandardFont(14);
                 createStandardFont(32);
                 break;
         }

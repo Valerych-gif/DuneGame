@@ -1,30 +1,63 @@
 package com.dune.game.core;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.dune.game.core.gui.GuiPlayerInfo;
 import com.dune.game.core.units.AbstractUnit;
-import com.dune.game.core.units.BattleTank;
 import com.dune.game.screens.ScreenManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameController {
+    private static final float CAMERA_SPEED = 240.0f;
+
     private BattleMap map;
+    private GuiPlayerInfo guiPlayerInfo;
     private PlayerLogic playerLogic;
     private AiLogic aiLogic;
     private ProjectilesController projectilesController;
+    private ParticleController particleController;
     private UnitsController unitsController;
     private Vector2 tmp;
     private Vector2 selectionStart;
+    private Vector2 selectionEnd;
     private Vector2 mouse;
     private Collider collider;
+    private Vector2 pointOfView;
 
     private List<AbstractUnit> selectedUnits;
+
+    private Stage stage;
+
+    public Stage getStage() {
+        return stage;
+    }
+
+    public ParticleController getParticleController() {
+        return particleController;
+    }
+
+    public Vector2 getSelectionStart() {
+        return selectionStart;
+    }
+
+    public Vector2 getSelectionEnd() {
+        return selectionEnd;
+    }
+
+    public Vector2 getPointOfView() {
+        return pointOfView;
+    }
 
     public UnitsController getUnitsController() {
         return unitsController;
@@ -52,15 +85,19 @@ public class GameController {
         this.playerLogic = new PlayerLogic(this);
         this.aiLogic = new AiLogic(this);
         this.collider = new Collider(this);
-        this.selectionStart = new Vector2();
+        this.selectionStart = new Vector2(-1, -1);
+        this.selectionEnd = new Vector2(-1, -1);
         this.selectedUnits = new ArrayList<>();
         this.map = new BattleMap();
         this.projectilesController = new ProjectilesController(this);
+        this.particleController = new ParticleController();
         this.unitsController = new UnitsController(this);
-        prepareInput();
+        this.pointOfView = new Vector2(ScreenManager.HALF_WORLD_WIDTH, ScreenManager.HALF_WORLD_HEIGHT);
+        createGuiAndPrepareGameInput();
     }
 
     public void update(float dt) {
+        ScreenManager.getInstance().pointCameraTo(getPointOfView());
         mouse.set(Gdx.input.getX(), Gdx.input.getY());
         ScreenManager.getInstance().getViewport().unproject(mouse);
         unitsController.update(dt);
@@ -69,14 +106,50 @@ public class GameController {
         projectilesController.update(dt);
         map.update(dt);
         collider.checkCollisions();
+        particleController.update(dt);
+        guiPlayerInfo.update(dt);
+        ScreenManager.getInstance().resetCamera();
+        stage.act(dt);
+        changePOV(dt);
+    }
+
+    public void changePOV(float dt) {
+        if (Gdx.input.getY() < 20) {
+            pointOfView.y += CAMERA_SPEED * dt;
+            if (pointOfView.y + ScreenManager.HALF_WORLD_HEIGHT > BattleMap.MAP_HEIGHT_PX) {
+                pointOfView.y = BattleMap.MAP_HEIGHT_PX - ScreenManager.HALF_WORLD_HEIGHT;
+            }
+            ScreenManager.getInstance().pointCameraTo(pointOfView);
+        }
+        if (Gdx.input.getY() > 700) {
+            pointOfView.y -= CAMERA_SPEED * dt;
+            if (pointOfView.y < ScreenManager.HALF_WORLD_HEIGHT) {
+                pointOfView.y = ScreenManager.HALF_WORLD_HEIGHT;
+            }
+            ScreenManager.getInstance().pointCameraTo(pointOfView);
+        }
+        if (Gdx.input.getX() < 20) {
+            pointOfView.x -= CAMERA_SPEED * dt;
+            if (pointOfView.x < ScreenManager.HALF_WORLD_WIDTH) {
+                pointOfView.x = ScreenManager.HALF_WORLD_WIDTH;
+            }
+            ScreenManager.getInstance().pointCameraTo(pointOfView);
+        }
+        if (Gdx.input.getX() > 1260) {
+            pointOfView.x += CAMERA_SPEED * dt;
+            if (pointOfView.x + ScreenManager.HALF_WORLD_WIDTH > BattleMap.MAP_WIDTH_PX) {
+                pointOfView.x = BattleMap.MAP_WIDTH_PX - ScreenManager.HALF_WORLD_WIDTH;
+            }
+            ScreenManager.getInstance().pointCameraTo(pointOfView);
+        }
     }
 
     public boolean isUnitSelected(AbstractUnit abstractUnit) {
         return selectedUnits.contains(abstractUnit);
     }
 
-    public void prepareInput() {
-        InputProcessor ip = new InputAdapter() {
+    public InputProcessor prepareInput() {
+        return new InputAdapter() {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if (button == Input.Buttons.LEFT) {
@@ -119,10 +192,52 @@ public class GameController {
                             }
                         }
                     }
+
+                    selectionStart.set(-1, -1);
                 }
                 return true;
             }
         };
-        Gdx.input.setInputProcessor(ip);
+    }
+
+    public void createGuiAndPrepareGameInput() {
+        stage = new Stage(ScreenManager.getInstance().getViewport(), ScreenManager.getInstance().getBatch());
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, prepareInput()));
+        Skin skin = new Skin();
+        skin.addRegions(Assets.getInstance().getAtlas());
+        BitmapFont font14 = Assets.getInstance().getAssetManager().get("fonts/font14.ttf");
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle(
+                skin.getDrawable("smButton"), null, null, font14);
+        final TextButton menuBtn = new TextButton("Menu", textButtonStyle);
+        menuBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.MENU);
+            }
+        });
+
+        final TextButton testBtn = new TextButton("Test", textButtonStyle);
+        testBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Test");
+                ;
+            }
+        });
+        Group menuGroup = new Group();
+        menuBtn.setPosition(0, 0);
+        testBtn.setPosition(130, 0);
+        menuGroup.addActor(menuBtn);
+        menuGroup.addActor(testBtn);
+        menuGroup.setPosition(900, 680);
+
+        Label.LabelStyle labelStyle = new Label.LabelStyle(font14, Color.WHITE);
+        skin.add("simpleLabel", labelStyle);
+
+        guiPlayerInfo = new GuiPlayerInfo(playerLogic, skin);
+        guiPlayerInfo.setPosition(0, 700);
+        stage.addActor(guiPlayerInfo);
+        stage.addActor(menuGroup);
+        skin.dispose();
     }
 }
