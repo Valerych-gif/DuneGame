@@ -226,19 +226,18 @@ public class GameController {
             }
         });
 
-        final TextButton testBtn = new TextButton("Test", textButtonStyle);
-        testBtn.addListener(new ClickListener() {
+        final TextButton exitBtn = new TextButton("Exit", textButtonStyle);
+        exitBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Test");
-                ;
+                Gdx.app.exit();
             }
         });
         Group menuGroup = new Group();
         menuBtn.setPosition(0, 0);
-        testBtn.setPosition(130, 0);
+        exitBtn.setPosition(130, 0);
         menuGroup.addActor(menuBtn);
-        menuGroup.addActor(testBtn);
+        menuGroup.addActor(exitBtn);
         menuGroup.setPosition(900, 680);
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(font14, Color.WHITE);

@@ -19,7 +19,7 @@ public class DuneGame extends Game {
     public void create() {
         batch = new SpriteBatch();
         ScreenManager.getInstance().init(this, batch);
-        ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.GAME);
+        ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.MENU);
     }
 
     @Override

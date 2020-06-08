@@ -10,14 +10,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.dune.game.core.MenuRenderer;
 
 public class MenuScreen extends AbstractScreen {
-    public MenuScreen(SpriteBatch batch) {
-        super(batch);
-    }
+
+    MenuRenderer menuRenderer;
+
+    public MenuScreen(SpriteBatch batch) { super(batch); }
 
     @Override
     public void show() {
+        this.menuRenderer = new MenuRenderer(batch);
     }
 
     @Override
@@ -25,12 +28,11 @@ public class MenuScreen extends AbstractScreen {
         update(delta);
         Gdx.gl.glClearColor(0, 0, 0.4f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        menuRenderer.render();
     }
 
     public void update(float dt) {
-        if (Gdx.input.justTouched()) {
-            ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.GAME);
-        }
+        menuRenderer.getStage().act(dt);
     }
 
     @Override
