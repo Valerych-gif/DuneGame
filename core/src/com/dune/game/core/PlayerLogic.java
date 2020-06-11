@@ -26,9 +26,13 @@ public class PlayerLogic {
         return unitsMaxCount;
     }
 
+    public void decreaseMoney(int value){
+        money-=value;
+    }
+
     public PlayerLogic(GameController gc) {
         this.gc = gc;
-        this.destination= new Vector2();
+        destination=new Vector2();
     }
 
     public void setup() {
@@ -76,19 +80,21 @@ public class PlayerLogic {
     }
 
     private void unitSelfCommand(AbstractUnit unit){
-        if (!(gc.getMap().getResourceCount(unit.getPosition())>0&&unit.getContainer()<unit.getContainerCapacity())) {
-            destination.set(gc.getUnitsController().getNearestResourcePosition(unit));
-
-            if (destination != null) {
-                destination.add((float) BattleMap.CELL_SIZE / 2, (float) BattleMap.CELL_SIZE / 2);
+        if (unit.getUnitType().equals(UnitType.HARVESTER)) {
+            if (!(gc.getMap().getResourceCount(unit.getPosition()) > 0 && unit.getContainer() < unit.getContainerCapacity())) {
+                Vector2 destination = gc.getUnitsController().getNearestResourcePosition(unit);
+                if (destination!=null) {
+                    destination.add((float) BattleMap.CELL_SIZE / 2, (float) BattleMap.CELL_SIZE / 2);
+                    unit.commandMoveTo(destination);
+                }
+            }
+            if (unit.getContainer() == unit.getContainerCapacity()) {
+                destination.set(gc.getMap().getPlayerBase().getPosition());
                 unit.commandMoveTo(destination);
             }
-        }
-        if (unit.getContainer()==unit.getContainerCapacity()){
-            unit.commandMoveTo(gc.getMap().getPlayerBase().getPosition());
-        }
-        if (unit.getPosition().dst(gc.getMap().getPlayerBase().getPosition())< BattleMap.Base.SIZE){
-            money+=unit.emptyContainer();
+            if (unit.getPosition().dst(gc.getMap().getPlayerBase().getPosition()) < BattleMap.Base.SIZE) {
+                money += unit.emptyContainer();
+            }
         }
         return;
     }

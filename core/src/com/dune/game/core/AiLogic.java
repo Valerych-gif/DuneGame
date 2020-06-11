@@ -2,6 +2,7 @@ package com.dune.game.core;
 
 import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.units.AbstractUnit;
+import com.dune.game.core.units.Owner;
 import com.dune.game.core.units.UnitType;
 
 public class AiLogic {
@@ -10,12 +11,14 @@ public class AiLogic {
     private int money;
     private int unitsCount;
     private int unitsMaxCount;
+    Vector2 destination;
 
 
     public AiLogic(GameController gc) {
         this.gc = gc;
-        this.money = 1000;
+        this.money = 100;
         this.unitsMaxCount = 100;
+        this.destination = new Vector2();
     }
 
     public void update(float dt) {
@@ -24,12 +27,21 @@ public class AiLogic {
             unitProcessing(aiUnit);
         }
         this.unitsCount=gc.getUnitsController().getAiUnits().size();
+        if (money>=100&&unitsCount<unitsMaxCount){
+            gc.getUnitsController().buildUnit(Owner.AI);
+
+        }
+    }
+
+    public void decreaseMoney(int value){
+        money-=value;
     }
 
     public void unitProcessing(AbstractUnit unit) {
-        if (unit.getUnitType() == UnitType.HARVESTER) {
+        destination = gc.getUnitsController().getNearestResourcePosition(unit);
+        if (unit.getUnitType().equals(UnitType.HARVESTER)) {
             if (!(gc.getMap().getResourceCount(unit.getPosition())>0&&unit.getContainer()<unit.getContainerCapacity())) {
-                Vector2 destination = gc.getUnitsController().getNearestResourcePosition(unit);
+
                 if (destination != null) {
                     destination.add((float) BattleMap.CELL_SIZE / 2, (float) BattleMap.CELL_SIZE / 2);
                     unit.commandMoveTo(destination);
@@ -40,6 +52,7 @@ public class AiLogic {
             }
             if (unit.getPosition().dst(gc.getMap().getAiBase().getPosition())< BattleMap.Base.SIZE){
                 money+=unit.emptyContainer();
+                destination.set(unit.getPosition());
             }
             return;
         }

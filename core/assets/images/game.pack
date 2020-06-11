@@ -80,6 +80,13 @@ progressbar
   orig: 60, 8
   offset: 0, 0
   index: -1
+tankBtn
+  rotate: false
+  xy: 186, 216
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 star16
   rotate: false
   xy: 124, 226
