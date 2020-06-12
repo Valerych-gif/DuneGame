@@ -96,6 +96,7 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
         this.progressbarTexture = Assets.getInstance().getAtlas().findRegion("progressbar");
         this.timePerFrame = 0.08f;
         this.rotationSpeed = 90.0f;
+        this.destination=new Vector2();
     }
 
     public abstract void setup(BaseLogic baseLogic, float x, float y);

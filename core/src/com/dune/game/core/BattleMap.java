@@ -10,7 +10,7 @@ import com.dune.game.screens.utils.Assets;
 
 public class BattleMap {
     private class Cell {
-        public BaseLogic applicant;
+        public AbstractUnit applicant;
         private Building buildingEntrance;
         private int cellX, cellY;
         private int resource;
@@ -102,11 +102,11 @@ public class BattleMap {
         }
     }
 
-    public void setApplicant(BaseLogic applicant, int cx, int cy){
+    public void setApplicant(AbstractUnit applicant, int cx, int cy){
         cells[cx][cy].applicant=applicant;
     }
 
-    public BaseLogic getApplicant(int cx, int cy){
+    public AbstractUnit getApplicant(int cx, int cy){
         return cells[cx][cy].applicant;
     }
 

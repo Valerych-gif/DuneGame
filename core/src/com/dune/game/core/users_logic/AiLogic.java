@@ -28,7 +28,6 @@ public class AiLogic extends BaseLogic {
     public AiLogic(GameController gc) {
         this.gc = gc;
         this.ownerType = Owner.AI;
-        destination = new Vector2();
         this.tmpAiBattleTanks = new ArrayList<>();
         this.tmpAiHarvesters = new ArrayList<>();
         this.tmpPlayerHarvesters = new ArrayList<>();
@@ -84,6 +83,7 @@ public class AiLogic extends BaseLogic {
     }
 
     public void harvesterProcessing(Harvester harvester) {
+        destination = new Vector2();
         if (!harvester.isOverload()) {
             destination = getNearestResourcePosition(harvester);
             if (destination != null) {
@@ -96,11 +96,11 @@ public class AiLogic extends BaseLogic {
                 if (building.getOwnerLogic() == this && building.getType() == Building.Type.STOCK) {
                     float x = building.getCellX() * BattleMap.CELL_SIZE;
                     float y = building.getCellY() * BattleMap.CELL_SIZE;
-                    destination = new Vector2(x + (float) BattleMap.CELL_SIZE / 2, y - (float) BattleMap.CELL_SIZE/2);
+                    destination.set(x + (float) BattleMap.CELL_SIZE / 2, y - (float) BattleMap.CELL_SIZE/2);
                 }
             }
         }
-        harvester.commandMoveTo(destination);
+        if (destination!=null) harvester.commandMoveTo(destination);
     }
 
 }

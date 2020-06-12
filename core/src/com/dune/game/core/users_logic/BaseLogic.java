@@ -12,6 +12,7 @@ public class BaseLogic {
     protected int money;
     protected int unitsCount;
     protected int unitsMaxCount;
+    private BattleMap map;
     private Vector2 nearestResourcePosition;
     private Vector2 tmp = new Vector2();
 
@@ -40,12 +41,12 @@ public class BaseLogic {
         boolean isResourceFound =false;
         int blockX=BattleMap.COLUMNS_COUNT;
         int blockY=BattleMap.ROWS_COUNT;
-        BattleMap map = gc.getMap();
+        map = gc.getMap();
         for (int cellY = 0; cellY < BattleMap.ROWS_COUNT; cellY++) {
             for (int cellX = 0; cellX < BattleMap.COLUMNS_COUNT; cellX++) {
                 tmp.set(cellX*BattleMap.CELL_SIZE, cellY*BattleMap.CELL_SIZE);
                 if (map.getResourceCount(tmp)>0){
-//                    if (!checkApplicant(unit, cellX, cellY)) {
+                    if (map.getApplicant(cellX, cellY)==null||(map.getApplicant(cellX, cellY).getBaseLogic()!=unit.getBaseLogic()&&unit!=map.getApplicant(cellX, cellY))) {
                         float dstToCurrentResource = unit.getPosition().dst(tmp);
                         if (dstToCurrentResource < unit.getPosition().dst(nearestResourcePosition)) {
                             nearestResourcePosition.set(tmp);
@@ -53,22 +54,14 @@ public class BaseLogic {
                             blockY = cellY;
                             isResourceFound = true;
                         }
-//                    }
+                    }
                 }
             }
         }
         if (isResourceFound) {
-            map.setApplicant(unit.getBaseLogic(), blockX, blockY);
+            map.setApplicant(unit, blockX, blockY);
             return nearestResourcePosition;
         }
         return null;
     }
-
-//    private boolean checkApplicant(AbstractUnit unit, int cellX, int cellY){
-//        return (
-//                map.getApplicant(cellX, cellY)!=null
-//                        &&unit.getOwnerType().equals(map.getApplicant(cellX, cellY).getOwnerType()))
-//                &&!unit.equals(map.getApplicant(cellX, cellY)
-//        );
-//    }
 }

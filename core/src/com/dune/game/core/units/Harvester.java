@@ -27,7 +27,6 @@ public class Harvester extends AbstractUnit {
         this.baseLogic = baseLogic;
         this.ownerType = baseLogic.getOwnerType();
         this.hp = this.hpMax;
-        this.destination = new Vector2(position);
     }
 
     public void updateWeapon(float dt) {
