@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.*;
 import com.dune.game.DuneGame;
-import com.dune.game.core.Assets;
+import com.dune.game.screens.utils.Assets;
 
 public class ScreenManager {
     public enum ScreenType {

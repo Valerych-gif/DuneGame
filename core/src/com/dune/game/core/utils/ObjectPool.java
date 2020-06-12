@@ -1,4 +1,4 @@
-package com.dune.game.core;
+package com.dune.game.core.utils;
 
 import com.dune.game.core.interfaces.Poolable;
 
