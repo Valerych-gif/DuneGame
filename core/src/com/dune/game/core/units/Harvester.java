@@ -9,6 +9,7 @@ import com.dune.game.core.users_logic.BaseLogic;
 import com.dune.game.screens.utils.Assets;
 
 public class Harvester extends AbstractUnit {
+
     public Harvester(GameController gc) {
         super(gc);
         this.textures = Assets.getInstance().getAtlas().findRegion("tankcore").split(64, 64)[0];
@@ -39,12 +40,15 @@ public class Harvester extends AbstractUnit {
                 }
             }
         } else {
+            if (position.dst(destination) < BattleMap.CELL_SIZE / 2) {
+                setBusy(false);
+            }
             weapon.reset();
         }
     }
 
-    public boolean isOverload(){
-        return getContainer()>=getContainerCapacity();
+    public boolean isOverload() {
+        return getContainer() >= getContainerCapacity();
     }
 
     @Override
@@ -74,12 +78,18 @@ public class Harvester extends AbstractUnit {
         return containerCapacity;
     }
 
+    @Override
+    public Vector2 getDestination() {
+        return destination;
+    }
+
     public void update(float dt) {
         super.update(dt);
         Building b = gc.getMap().getBuildingEntrance(getCellX(), getCellY());
         if (b != null && b.getType() == Building.Type.STOCK && b.getOwnerLogic() == this.baseLogic) {
             baseLogic.addMoney(container);
             container = 0;
+            setBusy(false);
         }
     }
 }

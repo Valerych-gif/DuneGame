@@ -14,43 +14,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AiLogic extends BaseLogic {
+
     private float timer;
 
-    private List<BattleTank> tmpAiBattleTanks;
-    private List<Harvester> tmpPlayerHarvesters;
-    private List<BattleTank> tmpPlayerBattleTanks;
-    private List<Harvester> tmpAiHarvesters;
-    private List<Building> buildings;
-    private BattleMap battleMap;
-
-    Vector2 destination;
-
     public AiLogic(GameController gc) {
-        this.gc = gc;
-        this.ownerType = Owner.AI;
-        this.tmpAiBattleTanks = new ArrayList<>();
-        this.tmpAiHarvesters = new ArrayList<>();
-        this.tmpPlayerHarvesters = new ArrayList<>();
-        this.tmpPlayerBattleTanks = new ArrayList<>();
-    }
-
-    public void setup() {
-        this.money = 100;
-        this.unitsCount = 10;
-        this.unitsMaxCount = 100;
-        this.buildings = gc.getBuildingsController().getActiveList();
+        super(gc);
         this.timer = 10000.0f;
-        this.battleMap = gc.getMap();
+        this.ownerType = Owner.AI;
     }
 
     public void update(float dt) {
-        timer += dt;
+        timer+=dt;
         if (timer > 2.0f) {
             timer = 0.0f;
-            gc.getUnitsController().collectTanks(tmpAiBattleTanks, gc.getUnitsController().getAiUnits(), UnitType.BATTLE_TANK);
-            gc.getUnitsController().collectTanks(tmpPlayerHarvesters, gc.getUnitsController().getPlayerUnits(), UnitType.HARVESTER);
-            gc.getUnitsController().collectTanks(tmpPlayerBattleTanks, gc.getUnitsController().getPlayerUnits(), UnitType.BATTLE_TANK);
-            gc.getUnitsController().collectTanks(tmpAiHarvesters, gc.getUnitsController().getAiUnits(), UnitType.HARVESTER);
+            super.update(dt);
             for (int i = 0; i < tmpAiBattleTanks.size(); i++) {
                 BattleTank aiBattleTank = tmpAiBattleTanks.get(i);
                 aiBattleTank.commandAttack(findNearestTarget(aiBattleTank, tmpPlayerHarvesters));
@@ -63,7 +40,6 @@ public class AiLogic extends BaseLogic {
             if (money >= 50 && unitsCount < unitsMaxCount) {
                 gc.getUnitsController().createBattleTank(this, BattleMap.MAP_WIDTH_PX - 100, BattleMap.MAP_HEIGHT_PX - 100);
                 money -= 50;
-
             }
         }
     }
@@ -81,26 +57,4 @@ public class AiLogic extends BaseLogic {
         }
         return target;
     }
-
-    public void harvesterProcessing(Harvester harvester) {
-        destination = new Vector2();
-        if (!harvester.isOverload()) {
-            destination = getNearestResourcePosition(harvester);
-            if (destination != null) {
-                destination.add((float) BattleMap.CELL_SIZE / 2, (float) BattleMap.CELL_SIZE / 2);
-
-            }
-        } else {
-            for (int i = 0; i < buildings.size(); i++) {
-                Building building = buildings.get(i);
-                if (building.getOwnerLogic() == this && building.getType() == Building.Type.STOCK) {
-                    float x = building.getCellX() * BattleMap.CELL_SIZE;
-                    float y = building.getCellY() * BattleMap.CELL_SIZE;
-                    destination.set(x + (float) BattleMap.CELL_SIZE / 2, y - (float) BattleMap.CELL_SIZE/2);
-                }
-            }
-        }
-        if (destination!=null) harvester.commandMoveTo(destination);
-    }
-
 }

@@ -39,6 +39,16 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
     protected Targetable target;
     protected float minDstToActiveTarget;
 
+    protected boolean isBusy;
+
+    public boolean isBusy() {
+        return isBusy;
+    }
+
+    public void setBusy(boolean busy) {
+        isBusy = busy;
+    }
+
     @Override
     public TargetType getType() {
         return TargetType.UNIT;
@@ -149,15 +159,19 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
     public void checkBounds() {
         if (position.x < 40) {
             position.x = 40;
+            destination.set(position.x, destination.y);
         }
         if (position.y < 40) {
             position.y = 40;
+            destination.set(destination.x, position.y);
         }
         if (position.x > BattleMap.MAP_WIDTH_PX - 40) {
             position.x = BattleMap.MAP_WIDTH_PX - 40;
+            destination.set(position.x, destination.y);
         }
         if (position.y > BattleMap.MAP_HEIGHT_PX - 40) {
             position.y = BattleMap.MAP_HEIGHT_PX - 40;
+            destination.set(destination.x, position.y);
         }
     }
 
@@ -210,4 +224,6 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
     public abstract int getContainer();
 
     public abstract int getContainerCapacity();
+
+    public abstract Vector2 getDestination();
 }

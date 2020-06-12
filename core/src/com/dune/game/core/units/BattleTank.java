@@ -75,4 +75,9 @@ public class BattleTank extends AbstractUnit {
     public int getContainerCapacity() {
         return containerCapacity;
     }
+
+    @Override
+    public Vector2 getDestination() {
+        return destination;
+    }
 }
