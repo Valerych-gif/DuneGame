@@ -44,6 +44,10 @@ public class Harvester extends AbstractUnit {
         }
     }
 
+    public boolean isOverload(){
+        return getContainer()>=getContainerCapacity();
+    }
+
     @Override
     public void commandAttack(Targetable target) {
         commandMoveTo(target.getPosition());
@@ -61,11 +65,21 @@ public class Harvester extends AbstractUnit {
         }
     }
 
+    @Override
+    public int getContainer() {
+        return container;
+    }
+
+    @Override
+    public int getContainerCapacity() {
+        return containerCapacity;
+    }
+
     public void update(float dt) {
         super.update(dt);
         Building b = gc.getMap().getBuildingEntrance(getCellX(), getCellY());
         if (b != null && b.getType() == Building.Type.STOCK && b.getOwnerLogic() == this.baseLogic) {
-            baseLogic.addMoney(container * 100);
+            baseLogic.addMoney(container);
             container = 0;
         }
     }

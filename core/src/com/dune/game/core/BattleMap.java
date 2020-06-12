@@ -4,10 +4,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.dune.game.core.units.AbstractUnit;
+import com.dune.game.core.users_logic.BaseLogic;
 import com.dune.game.screens.utils.Assets;
 
 public class BattleMap {
     private class Cell {
+        public BaseLogic applicant;
         private Building buildingEntrance;
         private int cellX, cellY;
         private int resource;
@@ -99,6 +102,14 @@ public class BattleMap {
         }
     }
 
+    public void setApplicant(BaseLogic applicant, int cx, int cy){
+        cells[cx][cy].applicant=applicant;
+    }
+
+    public BaseLogic getApplicant(int cx, int cy){
+        return cells[cx][cy].applicant;
+    }
+
     public boolean isCellGroundPassable(Vector2 position) {
         int cellX = (int) (position.x / BattleMap.CELL_SIZE);
         int cellY = (int) (position.y / BattleMap.CELL_SIZE);
@@ -128,6 +139,10 @@ public class BattleMap {
         return value;
     }
 
+    public Building getBuildingEntrance(int cellX, int cellY) {
+        return cells[cellX][cellY].buildingEntrance;
+    }
+
     public void render(SpriteBatch batch) {
         for (int i = 0; i < COLUMNS_COUNT; i++) {
             for (int j = 0; j < ROWS_COUNT; j++) {
@@ -143,9 +158,5 @@ public class BattleMap {
                 cells[i][j].update(dt);
             }
         }
-    }
-
-    public Building getBuildingEntrance(int cellX, int cellY) {
-        return cells[cellX][cellY].buildingEntrance;
     }
 }

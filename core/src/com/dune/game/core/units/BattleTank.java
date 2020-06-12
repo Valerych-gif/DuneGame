@@ -52,15 +52,27 @@ public class BattleTank extends AbstractUnit {
 
     @Override
     public void commandAttack(Targetable target) {
-        if (target.getType() == TargetType.UNIT && ((AbstractUnit) target).getOwnerType() != this.ownerType) {
-            this.target = target;
-        } else {
-            commandMoveTo(target.getPosition());
+        if (target != null) {
+            if ( target.getType() == TargetType.UNIT && ((AbstractUnit) target).getOwnerType() != this.ownerType) {
+                this.target = target;
+            } else {
+                commandMoveTo(target.getPosition());
+            }
         }
     }
 
     @Override
     public void renderGui(SpriteBatch batch) {
         super.renderGui(batch);
+    }
+
+    @Override
+    public int getContainer() {
+        return container;
+    }
+
+    @Override
+    public int getContainerCapacity() {
+        return containerCapacity;
     }
 }

@@ -133,6 +133,7 @@ public class GameController {
         this.pointOfView = new Vector2(ScreenManager.HALF_WORLD_WIDTH, ScreenManager.HALF_WORLD_HEIGHT);
         this.buildingsController.setup(3, 3, playerLogic);
         this.buildingsController.setup(14, 8, aiLogic);
+        this.aiLogic.setup();
 //        this.music = Gdx.audio.newMusic(Gdx.files.internal("1.mp3"));
 //        this.sound = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
         createGuiAndPrepareGameInput();

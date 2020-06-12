@@ -3,6 +3,7 @@ package com.dune.game.core.controllers;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.dune.game.core.BattleMap;
 import com.dune.game.core.GameController;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.types.Owner;
@@ -16,9 +17,13 @@ public class UnitsController {
     private GameController gc;
     private BattleTanksController battleTanksController;
     private HarvestersController harvestersController;
+    private BattleMap battleMap;
     private List<AbstractUnit> units;
     private List<AbstractUnit> playerUnits;
     private List<AbstractUnit> aiUnits;
+
+    Vector2 nearestResourcePosition;
+    Vector2 tmp;
 
     public List<AbstractUnit> getUnits() {
         return units;
@@ -37,21 +42,32 @@ public class UnitsController {
         this.gc = gc;
         this.battleTanksController = new BattleTanksController(gc);
         this.harvestersController = new HarvestersController(gc);
+        this.battleMap = gc.getMap();
         this.units = new ArrayList<>();
         this.playerUnits = new ArrayList<>();
         this.aiUnits = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            createBattleTank(gc.getPlayerLogic(), MathUtils.random(80, 1200), MathUtils.random(80, 640));
+        nearestResourcePosition = new Vector2();
+        tmp = new Vector2();
+        setup();
+    }
+
+    private void setup() {
+        for (int i = 0; i < 3; i++) {
+            createHarvester(
+                    gc.getPlayerLogic(),
+                    MathUtils.random(BattleMap.CELL_SIZE, BattleMap.CELL_SIZE*4),
+                    MathUtils.random(BattleMap.CELL_SIZE, BattleMap.CELL_SIZE*4)
+            );
         }
-        for (int i = 0; i < 2; i++) {
-            createHarvester(gc.getPlayerLogic(), MathUtils.random(80, 1200), MathUtils.random(80, 640));
+
+        for (int i = 0; i < 4; i++) {
+            createHarvester(
+                    gc.getAiLogic(),
+                    MathUtils.random(BattleMap.MAP_WIDTH_PX-BattleMap.CELL_SIZE*4, BattleMap.MAP_WIDTH_PX-BattleMap.CELL_SIZE),
+                    MathUtils.random(BattleMap.MAP_HEIGHT_PX-BattleMap.CELL_SIZE*4, BattleMap.MAP_HEIGHT_PX-BattleMap.CELL_SIZE)
+            );
         }
-        for (int i = 0; i < 2; i++) {
-            createBattleTank(gc.getAiLogic(), MathUtils.random(80, 1200), MathUtils.random(80, 640));
-        }
-        for (int i = 0; i < 2; i++) {
-            createHarvester(gc.getAiLogic(), MathUtils.random(80, 1200), MathUtils.random(80, 640));
-        }
+
     }
 
     public void createBattleTank(BaseLogic baseLogic, float x, float y) {
@@ -104,4 +120,5 @@ public class UnitsController {
             }
         }
     }
+
 }

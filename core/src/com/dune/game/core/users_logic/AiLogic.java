@@ -1,8 +1,8 @@
 package com.dune.game.core.users_logic;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.BattleMap;
+import com.dune.game.core.Building;
 import com.dune.game.core.GameController;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;
@@ -18,18 +18,30 @@ public class AiLogic extends BaseLogic {
 
     private List<BattleTank> tmpAiBattleTanks;
     private List<Harvester> tmpPlayerHarvesters;
-    private List<Harvester> tmpPlayerBattleTanks;
+    private List<BattleTank> tmpPlayerBattleTanks;
+    private List<Harvester> tmpAiHarvesters;
+    private List<Building> buildings;
+    private BattleMap battleMap;
+
+    Vector2 destination;
 
     public AiLogic(GameController gc) {
         this.gc = gc;
-        this.money = 1000;
-        this.unitsCount = 10;
-        this.unitsMaxCount = 100;
         this.ownerType = Owner.AI;
+        destination = new Vector2();
         this.tmpAiBattleTanks = new ArrayList<>();
+        this.tmpAiHarvesters = new ArrayList<>();
         this.tmpPlayerHarvesters = new ArrayList<>();
         this.tmpPlayerBattleTanks = new ArrayList<>();
+    }
+
+    public void setup() {
+        this.money = 100;
+        this.unitsCount = 10;
+        this.unitsMaxCount = 100;
+        this.buildings = gc.getBuildingsController().getActiveList();
         this.timer = 10000.0f;
+        this.battleMap = gc.getMap();
     }
 
     public void update(float dt) {
@@ -39,9 +51,20 @@ public class AiLogic extends BaseLogic {
             gc.getUnitsController().collectTanks(tmpAiBattleTanks, gc.getUnitsController().getAiUnits(), UnitType.BATTLE_TANK);
             gc.getUnitsController().collectTanks(tmpPlayerHarvesters, gc.getUnitsController().getPlayerUnits(), UnitType.HARVESTER);
             gc.getUnitsController().collectTanks(tmpPlayerBattleTanks, gc.getUnitsController().getPlayerUnits(), UnitType.BATTLE_TANK);
+            gc.getUnitsController().collectTanks(tmpAiHarvesters, gc.getUnitsController().getAiUnits(), UnitType.HARVESTER);
             for (int i = 0; i < tmpAiBattleTanks.size(); i++) {
                 BattleTank aiBattleTank = tmpAiBattleTanks.get(i);
-                aiBattleTank.commandAttack(findNearestTarget(aiBattleTank, tmpPlayerBattleTanks));
+                aiBattleTank.commandAttack(findNearestTarget(aiBattleTank, tmpPlayerHarvesters));
+            }
+            for (int i = 0; i < tmpAiHarvesters.size(); i++) {
+                Harvester harvester = tmpAiHarvesters.get(i);
+                harvesterProcessing(harvester);
+            }
+            this.unitsCount = gc.getUnitsController().getAiUnits().size();
+            if (money >= 50 && unitsCount < unitsMaxCount) {
+                gc.getUnitsController().createBattleTank(this, BattleMap.MAP_WIDTH_PX - 100, BattleMap.MAP_HEIGHT_PX - 100);
+                money -= 50;
+
             }
         }
     }
@@ -59,4 +82,25 @@ public class AiLogic extends BaseLogic {
         }
         return target;
     }
+
+    public void harvesterProcessing(Harvester harvester) {
+        if (!harvester.isOverload()) {
+            destination = getNearestResourcePosition(harvester);
+            if (destination != null) {
+                destination.add((float) BattleMap.CELL_SIZE / 2, (float) BattleMap.CELL_SIZE / 2);
+
+            }
+        } else {
+            for (int i = 0; i < buildings.size(); i++) {
+                Building building = buildings.get(i);
+                if (building.getOwnerLogic() == this && building.getType() == Building.Type.STOCK) {
+                    float x = building.getCellX() * BattleMap.CELL_SIZE;
+                    float y = building.getCellY() * BattleMap.CELL_SIZE;
+                    destination = new Vector2(x + (float) BattleMap.CELL_SIZE / 2, y - (float) BattleMap.CELL_SIZE/2);
+                }
+            }
+        }
+        harvester.commandMoveTo(destination);
+    }
+
 }
