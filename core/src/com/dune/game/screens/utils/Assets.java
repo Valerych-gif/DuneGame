@@ -1,4 +1,4 @@
-package com.dune.game.core;
+package com.dune.game.screens.utils;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;

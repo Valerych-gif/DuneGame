@@ -5,8 +5,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.*;
+import com.dune.game.core.interfaces.Poolable;
+import com.dune.game.core.interfaces.Targetable;
+import com.dune.game.core.units.types.Owner;
+import com.dune.game.core.units.types.TargetType;
+import com.dune.game.core.units.types.UnitType;
+import com.dune.game.core.users_logic.BaseLogic;
+import com.dune.game.screens.utils.Assets;
 
 public abstract class AbstractUnit extends GameObject implements Poolable, Targetable {
+    protected BaseLogic baseLogic;
     protected UnitType unitType;
     protected Owner ownerType;
     protected Weapon weapon;
@@ -36,8 +44,8 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
         return TargetType.UNIT;
     }
 
-    public Vector2 getDestination() {
-        return destination;
+    public BaseLogic getBaseLogic() {
+        return baseLogic;
     }
 
     public boolean takeDamage(int damage) {
@@ -46,7 +54,6 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
         }
         hp -= damage;
         if (hp <= 0) {
-            target=null;
             return true;
         }
         return false;
@@ -60,24 +67,14 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
         return weapon;
     }
 
-    public int getContainer() {
-        return container;
-    }
-
-    public int getContainerCapacity() {
-        return containerCapacity;
-    }
-
-    public int emptyContainer(){
-        int value=container;
-        container=0;
-        return value;
-    }
-
     public void moveBy(Vector2 value) {
         boolean stayStill = false;
         if (position.dst(destination) < 3.0f) {
             stayStill = true;
+        }
+        tmp.set(position).add(value);
+        if (!gc.getMap().isCellGroundPassable(tmp)) {
+            return;
         }
         position.add(value);
         if (stayStill) {
@@ -101,7 +98,7 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
         this.rotationSpeed = 90.0f;
     }
 
-    public abstract void setup(Owner ownerType, float x, float y);
+    public abstract void setup(BaseLogic baseLogic, float x, float y);
 
     private int getCurrentFrameIndex() {
         return (int) (moveTimer / timePerFrame) % textures.length;
@@ -124,14 +121,14 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
 
             if (gc.getMap().getResourceCount(position) > 0) {
                 for (int i = 0; i < gc.getMap().getResourceCount(position); i++) {
-                    gc.getParticleController().setup(MathUtils.random(getCellX() * 80, getCellX() * 80 + 80), MathUtils.random(getCellY() * 80, getCellY() * 80 + 80), MathUtils.random(-20, 20), MathUtils.random(-20, 20), 0.3f, 0.5f, 0.4f,
+                    gc.getParticleController().setup(MathUtils.random(getCellX() * BattleMap.CELL_SIZE, getCellX() * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE), MathUtils.random(getCellY() * BattleMap.CELL_SIZE, getCellY() * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE), MathUtils.random(-20, 20), MathUtils.random(-20, 20), 0.3f, 0.5f, 0.4f,
                             0, 0, 1, 0.1f, 1, 1, 1, 0.4f);
                 }
             }
 
             tmp.set(speed, 0).rotate(angle);
             position.mulAdd(tmp, dt);
-            if (position.dst(destination) < 120.0f && Math.abs(angleTo - angle) > 10) {
+            if ((position.dst(destination) < 120.0f && Math.abs(angleTo - angle) > 10) || !gc.getMap().isCellGroundPassable(position)) {
                 position.mulAdd(tmp, -dt);
             }
         }

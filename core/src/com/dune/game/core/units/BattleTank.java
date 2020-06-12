@@ -2,10 +2,13 @@ package com.dune.game.core.units;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.dune.game.core.Assets;
+import com.dune.game.core.units.types.TargetType;
+import com.dune.game.core.units.types.UnitType;
+import com.dune.game.screens.utils.Assets;
 import com.dune.game.core.GameController;
-import com.dune.game.core.Targetable;
+import com.dune.game.core.interfaces.Targetable;
 import com.dune.game.core.Weapon;
+import com.dune.game.core.users_logic.BaseLogic;
 
 public class BattleTank extends AbstractUnit {
     public BattleTank(GameController gc) {
@@ -21,9 +24,10 @@ public class BattleTank extends AbstractUnit {
     }
 
     @Override
-    public void setup(Owner ownerType, float x, float y) {
+    public void setup(BaseLogic baseLogic, float x, float y) {
         this.position.set(x, y);
-        this.ownerType = ownerType;
+        this.baseLogic = baseLogic;
+        this.ownerType = baseLogic.getOwnerType();
         this.hp = this.hpMax;
         this.destination = new Vector2(position);
     }
@@ -37,7 +41,7 @@ public class BattleTank extends AbstractUnit {
             float angleTo = tmp.set(target.getPosition()).sub(position).angle();
             weapon.setAngle(rotateTo(weapon.getAngle(), angleTo, 180.0f, dt));
             int power = weapon.use(dt);
-            if (power > -1&&position.dst(target.getPosition())<minDstToActiveTarget) {
+            if (power > -1) {
                 gc.getProjectilesController().setup(this, position, weapon.getAngle());
             }
         }

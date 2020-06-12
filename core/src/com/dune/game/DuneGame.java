@@ -12,14 +12,13 @@ public class DuneGame extends Game {
 
     // Домашнее задание:
     // 1. Разобраться с кодом
-    // 2. Сделайте площадку, куда харвестеры могут сдавать ресуры, и они должны начисляться игроку
-    // 3. Сделайте GUI для экрана меню (начать игру, выйти из игры) [ Выход через: Gdx.app.exit(); ]
+    // 2. Харвестеры AI должны собирать ресурсы и отвозить на базу
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         ScreenManager.getInstance().init(this, batch);
-        ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.MENU);
+        ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.GAME);
     }
 
     @Override
