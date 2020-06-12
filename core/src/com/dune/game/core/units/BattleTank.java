@@ -30,6 +30,7 @@ public class BattleTank extends AbstractUnit {
         this.ownerType = baseLogic.getOwnerType();
         this.hp = this.hpMax;
         this.destination = new Vector2(position);
+        this.target=null;
     }
 
     public void updateWeapon(float dt) {

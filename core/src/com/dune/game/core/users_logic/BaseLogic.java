@@ -70,6 +70,10 @@ public class BaseLogic {
         this.battleMap = gc.getMap();
     }
 
+    public void decreaseMoney(int value){
+        money-=value;
+    }
+
     public Vector2 getNearestResourcePosition(AbstractUnit unit) {
         nearestResourcePosition = new Vector2(BattleMap.MAP_WIDTH_PX * 2, BattleMap.MAP_HEIGHT_PX * 2);
         int blockX = BattleMap.COLUMNS_COUNT;
@@ -107,7 +111,7 @@ public class BaseLogic {
                     harvester.setBusy(true);
                     harvester.commandMoveTo(destination);
                 }
-            } else {if (harvester.getOwnerType()==Owner.PLAYER) System.out.println(buildings.size());
+            } else {
                 for (int i = 0; i < buildings.size(); i++) {
                     Building building = buildings.get(i);
                     if (building.getOwnerLogic() == this && building.getType() == Building.Type.STOCK) {

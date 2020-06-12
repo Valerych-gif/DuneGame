@@ -63,7 +63,6 @@ public class PlayerLogic extends BaseLogic {
     private void unitSelfCommand(AbstractUnit unit){
         if (unit.getUnitType()==UnitType.HARVESTER) {
             harvesterProcessing((Harvester)unit);
-            System.out.println(unit.getContainer());
         }
     }
 }

@@ -293,6 +293,36 @@ public class GameController {
         guiPlayerInfo.setPosition(0, 700);
         stage.addActor(guiPlayerInfo);
         stage.addActor(menuGroup);
+        TextButton.TextButtonStyle tankButtonStyle = new TextButton.TextButtonStyle(
+                skin.getDrawable("tankBtn"), null, null, font14);
+        final TextButton tankBtn = new TextButton("", tankButtonStyle);
+        tankBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (playerLogic.getMoney()>=50) {
+                    unitsController.createBattleTank(playerLogic, 2, 2);
+                }
+            }
+        });
+
+        TextButton.TextButtonStyle harvesterBtnStyle = new TextButton.TextButtonStyle(
+                skin.getDrawable("harvesterBtn"), null, null, font14);
+        final TextButton harvesterBtn = new TextButton("", harvesterBtnStyle);
+        harvesterBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (playerLogic.getMoney()>=100) {
+                    unitsController.createHarvester(playerLogic, 2, 2);
+                }
+            }
+        });
+        Group unitsToBuy = new Group();
+        tankBtn.setPosition(0, 0);
+        harvesterBtn.setPosition(35, 0);
+        unitsToBuy.addActor(tankBtn);
+        unitsToBuy.addActor(harvesterBtn);
+        unitsToBuy.setPosition(20,650);
+        stage.addActor(unitsToBuy);
         skin.dispose();
     }
 }
