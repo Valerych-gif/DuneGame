@@ -1,8 +1,6 @@
 package com.dune.game.core;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
@@ -17,19 +15,20 @@ import com.dune.game.core.controllers.BuildingsController;
 import com.dune.game.core.controllers.ParticleController;
 import com.dune.game.core.controllers.ProjectilesController;
 import com.dune.game.core.controllers.UnitsController;
+import com.dune.game.core.gui.GameInterface;
+import com.dune.game.core.gui.GameUserInterface;
 import com.dune.game.core.gui.GuiPlayerInfo;
+import com.dune.game.core.gui.UnitsPanel;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.users_logic.AiLogic;
 import com.dune.game.core.users_logic.PlayerLogic;
 import com.dune.game.core.utils.Collider;
 import com.dune.game.screens.ScreenManager;
 import com.dune.game.screens.utils.Assets;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 public class GameController {
     private static final float CAMERA_SPEED = 240.0f;
 
@@ -47,13 +46,81 @@ public class GameController {
     private Vector2 selectionEnd;
     private Vector2 mouse;
     private Vector2 pointOfView;
+    private GameInterface gameInterface;
     private Collider collider;
     private float worldTimer;
     private boolean paused;
     private List<AbstractUnit> selectedUnits;
     private Stage stage;
 
-//    private Music music;
+    public float getWorldTimer() {
+        return worldTimer;
+    }
+
+    public Stage getStage() {
+        return stage;
+    }
+
+    public ParticleController getParticleController() {
+        return particleController;
+    }
+
+    public PlayerLogic getPlayerLogic() {
+        return playerLogic;
+    }
+
+    public AiLogic getAiLogic() {
+        return aiLogic;
+    }
+
+    public Vector2 getSelectionStart() {
+        return selectionStart;
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public Vector2 getSelectionEnd() {
+        return selectionEnd;
+    }
+
+    public Vector2 getPointOfView() {
+        return pointOfView;
+    }
+
+    public UnitsController getUnitsController() {
+        return unitsController;
+    }
+
+    public List<AbstractUnit> getSelectedUnits() {
+        return selectedUnits;
+    }
+
+    public Vector2 getMouse() {
+        return mouse;
+    }
+
+    public ProjectilesController getProjectilesController() {
+        return projectilesController;
+    }
+
+    public BattleMap getMap() {
+        return map;
+    }
+
+    public BuildingsController getBuildingsController() {
+        return buildingsController;
+    }
+
+    public PathFinder getPathFinder() {
+        return pathFinder;
+    }
+
+    public GameInterface getGameInterface() {
+        return gameInterface;
+    }
+    //    private Music music;
 //    private Sound sound;
 
     public GameController() {
@@ -72,11 +139,16 @@ public class GameController {
         this.buildingsController = new BuildingsController(this);
         this.unitsController = new UnitsController(this);
         this.pointOfView = new Vector2(ScreenManager.HALF_WORLD_WIDTH, ScreenManager.HALF_WORLD_HEIGHT);
+        this.gameInterface = new GameInterface(this);
+        this.guiPlayerInfo = new GuiPlayerInfo(this);
         this.buildingsController.setup(3, 3, playerLogic);
         this.buildingsController.setup(14, 8, aiLogic);
+        this.stage = new Stage(ScreenManager.getInstance().getViewport(), ScreenManager.getInstance().getBatch());
+        this.gameInterface.setup();
+        this.guiPlayerInfo.setup();
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, prepareInput()));
 //        this.music = Gdx.audio.newMusic(Gdx.files.internal("1.mp3"));
 //        this.sound = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
-        createGuiAndPrepareGameInput();
     }
 
     public void update(float dt) {
@@ -96,13 +168,10 @@ public class GameController {
             map.update(dt);
             collider.checkCollisions();
             particleController.update(dt);
-//        for (int i = 0; i < 5; i++) {
-//            particleController.setup(mouse.x, mouse.y, MathUtils.random(-15.0f, 15.0f), MathUtils.random(-30.0f, 30.0f), 0.5f,
-//                    0.3f, 1.4f, 1, 1, 0, 1, 1, 0, 0, 0.5f);
-//        }
-            guiPlayerInfo.update(dt);
+
         }
         ScreenManager.getInstance().resetCamera();
+        gameInterface.update(dt);
         stage.act(dt);
         changePOV(dt);
     }
@@ -194,44 +263,5 @@ public class GameController {
         };
     }
 
-    public void createGuiAndPrepareGameInput() {
-        stage = new Stage(ScreenManager.getInstance().getViewport(), ScreenManager.getInstance().getBatch());
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage, prepareInput()));
-        Skin skin = new Skin();
-        skin.addRegions(Assets.getInstance().getAtlas());
-        BitmapFont font14 = Assets.getInstance().getAssetManager().get("fonts/font14.ttf");
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle(
-                skin.getDrawable("smButton"), null, null, font14);
-        final TextButton menuBtn = new TextButton("Menu", textButtonStyle);
-        menuBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.MENU);
-            }
-        });
 
-        final TextButton testBtn = new TextButton("Test", textButtonStyle);
-        testBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Test");
-                ;
-            }
-        });
-        Group menuGroup = new Group();
-        menuBtn.setPosition(0, 0);
-        testBtn.setPosition(130, 0);
-        menuGroup.addActor(menuBtn);
-        menuGroup.addActor(testBtn);
-        menuGroup.setPosition(900, 680);
-
-        Label.LabelStyle labelStyle = new Label.LabelStyle(font14, Color.WHITE);
-        skin.add("simpleLabel", labelStyle);
-
-        guiPlayerInfo = new GuiPlayerInfo(playerLogic, skin);
-        guiPlayerInfo.setPosition(0, 700);
-        stage.addActor(guiPlayerInfo);
-        stage.addActor(menuGroup);
-        skin.dispose();
-    }
 }

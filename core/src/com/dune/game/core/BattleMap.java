@@ -159,7 +159,7 @@ public class BattleMap implements GameMap {
 
     public BattleMap() {
         this.grassTexture = Assets.getInstance().getAtlas().findRegion("grass");
-        this.resourceTexture = Assets.getInstance().getAtlas().findRegion("resr");
+        this.resourceTexture = Assets.getInstance().getAtlas().findRegion("resource");
         this.cells = new Cell[COLUMNS_COUNT][ROWS_COUNT];
         for (int i = 0; i < COLUMNS_COUNT; i++) {
             for (int j = 0; j < ROWS_COUNT; j++) {
