@@ -18,7 +18,7 @@ public class BattleTank extends AbstractUnit {
         this.hpMax = 100;
         this.weapon = new Weapon(1.5f, 1);
         this.minDstToActiveTarget = weapon.getRange() - 40.0f;
-        this.containerCapacity = 32;
+        this.containerCapacity = 100;
         this.container = this.containerCapacity;
         this.unitType = UnitType.BATTLE_TANK;
     }

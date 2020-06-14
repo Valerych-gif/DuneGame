@@ -144,6 +144,8 @@ public class GameController {
         this.buildingsController.setup(3, 3, playerLogic);
         this.buildingsController.setup(14, 8, aiLogic);
         this.stage = new Stage(ScreenManager.getInstance().getViewport(), ScreenManager.getInstance().getBatch());
+        this.playerLogic.setup();
+        this.aiLogic.setup();
         this.gameInterface.setup();
         this.guiPlayerInfo.setup();
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, prepareInput()));

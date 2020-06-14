@@ -4,10 +4,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.BattleMap;
 import com.dune.game.core.Building;
 import com.dune.game.core.GameController;
+import com.dune.game.core.GameObject;
+import com.dune.game.core.interfaces.Targetable;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;
 import com.dune.game.core.units.Harvester;
 import com.dune.game.core.units.types.Owner;
+import com.dune.game.core.units.types.TargetType;
 import com.dune.game.core.units.types.UnitType;
 
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ public class BaseLogic {
     protected List<BattleTank> tmpPlayerBattleTanks;
     protected List<Harvester> tmpAiHarvesters;
     protected List<Building> buildings;
+    protected List<AbstractUnit> aiUnits;
     protected BattleMap battleMap;
 
 
@@ -60,6 +64,7 @@ public class BaseLogic {
         this.tmpPlayerHarvesters = new ArrayList<>();
         this.tmpPlayerBattleTanks = new ArrayList<>();
         this.buildings = new ArrayList<>();
+        this.aiUnits = new ArrayList<>();
         this.destination = new Vector2();
     }
 
@@ -68,6 +73,7 @@ public class BaseLogic {
         this.unitsCount = 10;
         this.unitsMaxCount = 100;
         this.buildings = gc.getBuildingsController().getActiveList();
+        this.aiUnits = gc.getUnitsController().getAiUnits();
         this.battleMap = gc.getMap();
     }
 
@@ -84,9 +90,8 @@ public class BaseLogic {
                     harvester.setBusy(true);
                     harvester.commandMoveTo(destination, true);
                 }
-            } else {System.out.println(buildings.size());
+            } else {
                 for (int i = 0; i < buildings.size(); i++) {
-
                     Building building = buildings.get(i);
                     if (building.getOwnerLogic() == this && building.getBuildingType() == Building.Type.STOCK) {
                         float x = building.getCellX() * BattleMap.CELL_SIZE;
@@ -129,6 +134,21 @@ public class BaseLogic {
             return nearestResourcePosition;
         } else if (unit.getOwnerType()==Owner.PLAYER) System.out.println(destination);
         return null;
+    }
+
+    public <T> List<Targetable> collectTargets(List<T> gameObjects, TargetType targetType) {
+        List<Targetable> out = new ArrayList<>();
+        for (int i = 0; i < gameObjects.size(); i++) {
+            T o = gameObjects.get(i);
+            if (o instanceof Targetable){
+                Targetable t=(Targetable)o;
+                if (t.getTargetType() == targetType) {
+                    out.add(t);
+                }
+            }
+
+        }
+        return out;
     }
 
     public void update(float dt) {

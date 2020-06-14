@@ -9,11 +9,12 @@ import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.types.Owner;
 import com.dune.game.core.units.types.UnitType;
 import com.dune.game.core.users_logic.BaseLogic;
+import com.dune.game.core.utils.ObjectPool;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class UnitsController {
+public class UnitsController extends ObjectPool<AbstractUnit> {
     private GameController gc;
     private BattleTanksController battleTanksController;
     private HarvestersController harvestersController;
@@ -102,5 +103,10 @@ public class UnitsController {
                 out.add((T) au);
             }
         }
+    }
+
+    @Override
+    protected AbstractUnit newObject() {
+        return null;
     }
 }
