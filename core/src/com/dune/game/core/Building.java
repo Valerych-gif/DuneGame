@@ -7,6 +7,7 @@ import com.dune.game.core.interfaces.Poolable;
 import com.dune.game.core.interfaces.Targetable;
 import com.dune.game.core.units.types.TargetType;
 import com.dune.game.core.users_logic.BaseLogic;
+import com.dune.game.map.BattleMap;
 import com.dune.game.screens.utils.Assets;
 
 public class Building extends GameObject implements Poolable, Targetable {

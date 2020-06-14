@@ -5,6 +5,7 @@ import com.dune.game.core.*;
 import com.dune.game.core.interfaces.Targetable;
 import com.dune.game.core.units.types.UnitType;
 import com.dune.game.core.users_logic.BaseLogic;
+import com.dune.game.map.BattleMap;
 import com.dune.game.screens.utils.Assets;
 
 public class Harvester extends AbstractUnit {

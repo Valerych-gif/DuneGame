@@ -3,8 +3,6 @@ package com.dune.game.core.users_logic;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
-import com.dune.game.core.BattleMap;
-import com.dune.game.core.Building;
 import com.dune.game.core.GameController;
 import com.dune.game.core.interfaces.Targetable;
 import com.dune.game.core.units.AbstractUnit;
@@ -15,7 +13,6 @@ import com.dune.game.core.units.types.UnitType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
 
 public class PlayerLogic extends BaseLogic {
 

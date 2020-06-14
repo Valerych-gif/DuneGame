@@ -1,10 +1,9 @@
 package com.dune.game.core.users_logic;
 
 import com.badlogic.gdx.math.Vector2;
-import com.dune.game.core.BattleMap;
+import com.dune.game.map.BattleMap;
 import com.dune.game.core.Building;
 import com.dune.game.core.GameController;
-import com.dune.game.core.GameObject;
 import com.dune.game.core.interfaces.Targetable;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;

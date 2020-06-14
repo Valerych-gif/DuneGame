@@ -11,6 +11,7 @@ import com.dune.game.core.units.types.Owner;
 import com.dune.game.core.units.types.TargetType;
 import com.dune.game.core.units.types.UnitType;
 import com.dune.game.core.users_logic.BaseLogic;
+import com.dune.game.map.BattleMap;
 import com.dune.game.screens.utils.Assets;
 
 public abstract class AbstractUnit extends GameObject implements Poolable, Targetable {

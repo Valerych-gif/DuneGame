@@ -1,30 +1,20 @@
 package com.dune.game.core;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.dune.game.core.controllers.BuildingsController;
 import com.dune.game.core.controllers.ParticleController;
 import com.dune.game.core.controllers.ProjectilesController;
 import com.dune.game.core.controllers.UnitsController;
 import com.dune.game.core.gui.GameInterface;
-import com.dune.game.core.gui.GameUserInterface;
 import com.dune.game.core.gui.GuiPlayerInfo;
-import com.dune.game.core.gui.UnitsPanel;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.users_logic.AiLogic;
 import com.dune.game.core.users_logic.PlayerLogic;
 import com.dune.game.core.utils.Collider;
+import com.dune.game.map.BattleMap;
 import com.dune.game.screens.ScreenManager;
-import com.dune.game.screens.utils.Assets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,7 +122,7 @@ public class GameController {
         this.selectionStart = new Vector2(-1, -1);
         this.selectionEnd = new Vector2(-1, -1);
         this.selectedUnits = new ArrayList<>();
-        this.map = new BattleMap();
+        this.map = new BattleMap(this);
         this.pathFinder = new PathFinder(map);
         this.projectilesController = new ProjectilesController(this);
         this.particleController = new ParticleController();
@@ -141,13 +131,15 @@ public class GameController {
         this.pointOfView = new Vector2(ScreenManager.HALF_WORLD_WIDTH, ScreenManager.HALF_WORLD_HEIGHT);
         this.gameInterface = new GameInterface(this);
         this.guiPlayerInfo = new GuiPlayerInfo(this);
-        this.buildingsController.setup(3, 3, playerLogic);
-        this.buildingsController.setup(14, 8, aiLogic);
         this.stage = new Stage(ScreenManager.getInstance().getViewport(), ScreenManager.getInstance().getBatch());
+        this.map.setup();
+        this.pathFinder.setup();
+        this.unitsController.setup();
         this.playerLogic.setup();
         this.aiLogic.setup();
         this.gameInterface.setup();
         this.guiPlayerInfo.setup();
+
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, prepareInput()));
 //        this.music = Gdx.audio.newMusic(Gdx.files.internal("1.mp3"));
 //        this.sound = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));

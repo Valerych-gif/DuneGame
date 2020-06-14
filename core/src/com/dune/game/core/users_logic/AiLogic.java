@@ -1,14 +1,11 @@
 package com.dune.game.core.users_logic;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.dune.game.core.BattleMap;
+import com.dune.game.map.BattleMap;
 import com.dune.game.core.GameController;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;
 import com.dune.game.core.units.Harvester;
 import com.dune.game.core.units.types.Owner;
-import com.dune.game.core.units.types.UnitType;
 
 import java.util.ArrayList;
 import java.util.List;
