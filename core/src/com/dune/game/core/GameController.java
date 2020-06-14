@@ -24,10 +24,12 @@ import com.dune.game.core.users_logic.PlayerLogic;
 import com.dune.game.core.utils.Collider;
 import com.dune.game.screens.ScreenManager;
 import com.dune.game.screens.utils.Assets;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class GameController {
     private static final float CAMERA_SPEED = 240.0f;
 
@@ -39,82 +41,20 @@ public class GameController {
     private ParticleController particleController;
     private UnitsController unitsController;
     private BuildingsController buildingsController;
+    private PathFinder pathFinder;
     private Vector2 tmp;
     private Vector2 selectionStart;
     private Vector2 selectionEnd;
     private Vector2 mouse;
-    private Collider collider;
     private Vector2 pointOfView;
+    private Collider collider;
     private float worldTimer;
     private boolean paused;
+    private List<AbstractUnit> selectedUnits;
+    private Stage stage;
 
 //    private Music music;
 //    private Sound sound;
-
-    public float getWorldTimer() {
-        return worldTimer;
-    }
-
-    private List<AbstractUnit> selectedUnits;
-
-    private Stage stage;
-
-    public Stage getStage() {
-        return stage;
-    }
-
-    public ParticleController getParticleController() {
-        return particleController;
-    }
-
-    public PlayerLogic getPlayerLogic() {
-        return playerLogic;
-    }
-
-    public AiLogic getAiLogic() {
-        return aiLogic;
-    }
-
-    public Vector2 getSelectionStart() {
-        return selectionStart;
-    }
-
-
-    public boolean isPaused() {
-        return paused;
-    }
-
-    public Vector2 getSelectionEnd() {
-        return selectionEnd;
-    }
-
-    public Vector2 getPointOfView() {
-        return pointOfView;
-    }
-
-    public UnitsController getUnitsController() {
-        return unitsController;
-    }
-
-    public List<AbstractUnit> getSelectedUnits() {
-        return selectedUnits;
-    }
-
-    public Vector2 getMouse() {
-        return mouse;
-    }
-
-    public ProjectilesController getProjectilesController() {
-        return projectilesController;
-    }
-
-    public BattleMap getMap() {
-        return map;
-    }
-
-    public BuildingsController getBuildingsController() {
-        return buildingsController;
-    }
 
     public GameController() {
         this.mouse = new Vector2();
@@ -126,6 +66,7 @@ public class GameController {
         this.selectionEnd = new Vector2(-1, -1);
         this.selectedUnits = new ArrayList<>();
         this.map = new BattleMap();
+        this.pathFinder = new PathFinder(map);
         this.projectilesController = new ProjectilesController(this);
         this.particleController = new ParticleController();
         this.buildingsController = new BuildingsController(this);

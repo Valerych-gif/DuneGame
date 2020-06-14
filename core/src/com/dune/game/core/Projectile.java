@@ -54,11 +54,15 @@ public class Projectile extends GameObject implements Poolable {
     public void update(float dt) {
         position.mulAdd(velocity, dt);
         for (int i = 0; i < 4; i++) {
-            gc.getParticleController().setup(position.x, position.y, MathUtils.random(-40, 40), MathUtils.random(-40, 40) , 0.3f, 0.8f, 0.6f,
+            gc.getParticleController().setup(position.x, position.y, MathUtils.random(-40, 40), MathUtils.random(-40, 40), 0.3f, 0.8f, 0.6f,
                     1, 1, 0, 1, 1f, 0f, 0, 0.8f);
         }
 
-        if (position.x < 0 || position.x > BattleMap.MAP_WIDTH_PX || position.y < 0 || position.y > BattleMap.MAP_HEIGHT_PX) {
+        if (!gc.getMap().isCellPassable(getCellX(), getCellY(), true)) {
+            Building b = gc.getMap().getBuildingFromCell(getCellX(), getCellY());
+            if (b != null) {
+                b.takeDamage(1);
+            }
             deactivate();
         }
     }

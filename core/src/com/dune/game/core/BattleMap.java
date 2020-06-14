@@ -6,29 +6,34 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dune.game.screens.utils.Assets;
 
-public class BattleMap {
+public class BattleMap implements GameMap {
     private class Cell {
+        private Building buildingCore;
         private Building buildingEntrance;
         private int cellX, cellY;
         private int resource;
         private float resourceRegenerationRate;
         private float resourceRegenerationTime;
         private boolean groundPassable;
+        private boolean airPassable;
 
         public Cell(int cellX, int cellY) {
             this.cellX = cellX;
             this.cellY = cellY;
+            this.groundPassable = true;
+            this.airPassable = true;
             if (MathUtils.random() < 0.1f) {
                 resource = MathUtils.random(1, 3);
+//                this.groundPassable = false;
             }
             resourceRegenerationRate = MathUtils.random(5.0f) - 4.5f;
             if (resourceRegenerationRate < 0.0f) {
                 resourceRegenerationRate = 0.0f;
             } else {
+//                this.groundPassable = false;
                 resourceRegenerationRate *= 20.0f;
                 resourceRegenerationRate += 10.0f;
             }
-            this.groundPassable = true;
         }
 
         private void update(float dt) {
@@ -46,7 +51,7 @@ public class BattleMap {
 
         private void render(SpriteBatch batch) {
             if (resource > 0) {
-                float scale = 0.5f + resource * 0.2f;
+                float scale = 0.5f + resource * 0.1f;
                 batch.draw(resourceTexture, cellX * CELL_SIZE, cellY * CELL_SIZE, CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE, CELL_SIZE, scale, scale, 0.0f);
             } else {
                 if (resourceRegenerationRate > 0.01f) {
@@ -61,8 +66,16 @@ public class BattleMap {
             resource = 0;
         }
 
+        public void blockAirPass() {
+            airPassable = false;
+        }
+
         public void unblockGroundPass() {
             groundPassable = true;
+        }
+
+        public void unblockAirPass() {
+            airPassable = true;
         }
     }
 
@@ -71,6 +84,42 @@ public class BattleMap {
     public static final int CELL_SIZE = 60;
     public static final int MAP_WIDTH_PX = COLUMNS_COUNT * CELL_SIZE;
     public static final int MAP_HEIGHT_PX = ROWS_COUNT * CELL_SIZE;
+
+    @Override
+    public int getSizeX() {
+        return COLUMNS_COUNT;
+    }
+
+    @Override
+    public int getSizeY() {
+        return ROWS_COUNT;
+    }
+
+    public Building getBuildingFromCell(int cellX, int cellY) {
+        if (cellX < 0 || cellY < 0 || cellX >= COLUMNS_COUNT || cellY >= ROWS_COUNT) {
+            return null;
+        }
+        return cells[cellX][cellY].buildingCore;
+    }
+
+    @Override
+    public boolean isCellPassable(int cellX, int cellY, boolean isFlyable) {
+        if (cellX < 0 || cellY < 0 || cellX >= COLUMNS_COUNT || cellY >= ROWS_COUNT) {
+            return false;
+        }
+        if (cells[cellX][cellY].groundPassable) {
+            return true;
+        }
+        if (cells[cellX][cellY].airPassable && isFlyable) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int getCellCost(int cellX, int cellY) {
+        return 1;
+    }
 
     private TextureRegion grassTexture;
     private TextureRegion resourceTexture;
@@ -84,13 +133,33 @@ public class BattleMap {
         cells[cellX][cellY].unblockGroundPass();
     }
 
-    public void setupBuildingEntrance(int cellX, int cellY, Building building) {
-        cells[cellX][cellY].buildingEntrance = building;
+    public void blockAirCell(int cellX, int cellY) {
+        cells[cellX][cellY].blockAirPass();
+    }
+
+    public void unblockAirCell(int cellX, int cellY) {
+        cells[cellX][cellY].unblockAirPass();
+    }
+
+    public void setupBuilding(int startX, int startY, int endX, int endY, int entranceX, int entranceY, Building building) {
+        for (int i = startX; i <= endX; i++) {
+            for (int j = startY; j <= endY; j++) {
+                cells[i][j].buildingCore = building;
+                if (building != null) {
+                    blockAirCell(i, j);
+                    blockGroundCell(i, j);
+                } else {
+                    unblockAirCell(i, j);
+                    unblockGroundCell(i, j);
+                }
+            }
+        }
+        cells[entranceX][entranceY].buildingEntrance = building;
     }
 
     public BattleMap() {
         this.grassTexture = Assets.getInstance().getAtlas().findRegion("grass");
-        this.resourceTexture = Assets.getInstance().getAtlas().findRegion("resource");
+        this.resourceTexture = Assets.getInstance().getAtlas().findRegion("resr");
         this.cells = new Cell[COLUMNS_COUNT][ROWS_COUNT];
         for (int i = 0; i < COLUMNS_COUNT; i++) {
             for (int j = 0; j < ROWS_COUNT; j++) {
@@ -131,7 +200,9 @@ public class BattleMap {
     public void render(SpriteBatch batch) {
         for (int i = 0; i < COLUMNS_COUNT; i++) {
             for (int j = 0; j < ROWS_COUNT; j++) {
-                batch.draw(grassTexture, i * CELL_SIZE, j * CELL_SIZE);
+                if (cells[i][j].groundPassable) {
+                    batch.draw(grassTexture, i * CELL_SIZE, j * CELL_SIZE);
+                }
                 cells[i][j].render(batch);
             }
         }

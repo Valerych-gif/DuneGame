@@ -18,7 +18,7 @@ public class AiLogic extends BaseLogic {
 
     private List<BattleTank> tmpAiBattleTanks;
     private List<Harvester> tmpPlayerHarvesters;
-    private List<Harvester> tmpPlayerBattleTanks;
+    private List<BattleTank> tmpPlayerBattleTanks;
 
     public AiLogic(GameController gc) {
         this.gc = gc;

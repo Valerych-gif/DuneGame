@@ -73,23 +73,23 @@ public class WorldRenderer {
     }
 
     public void drawSelectionFrame() {
-        if (gc.getSelectionStart().x > 0 && gc.getSelectionStart().y > 0) {
-            batch.draw(selectorTexture, gc.getMouse().x - 8, gc.getMouse().y - 8);
-            batch.draw(selectorTexture, gc.getMouse().x - 8, gc.getSelectionStart().y - 8);
-            batch.draw(selectorTexture, gc.getSelectionStart().x - 8, gc.getSelectionStart().y - 8);
-            batch.draw(selectorTexture, gc.getSelectionStart().x - 8, gc.getMouse().y - 8);
+        if (gc.getSelectionStart().x > 0 && gc.getSelectionStart().y > 0 && gc.getSelectionStart().dst(gc.getMouse()) > 10) {
             float minX = Math.min(gc.getSelectionStart().x, gc.getMouse().x);
             float maxX = Math.max(gc.getSelectionStart().x, gc.getMouse().x);
             float minY = Math.min(gc.getSelectionStart().y, gc.getMouse().y);
             float maxY = Math.max(gc.getSelectionStart().y, gc.getMouse().y);
-            for (float i = minX; i < maxX; i += 30.0f) {
+            for (float i = minX; i < maxX; i += 20.0f) {
                 batch.draw(selectorTexture, i - 4, minY - 4, 8, 8);
                 batch.draw(selectorTexture, i - 4, maxY - 4, 8, 8);
             }
-            for (float i = minY; i < maxY; i += 30.0f) {
+            for (float i = minY; i < maxY; i += 20.0f) {
                 batch.draw(selectorTexture, minX - 4, i - 4, 8, 8);
                 batch.draw(selectorTexture, maxX - 4, i - 4, 8, 8);
             }
+            batch.draw(selectorTexture, gc.getMouse().x - 8, gc.getMouse().y - 8);
+            batch.draw(selectorTexture, gc.getMouse().x - 8, gc.getSelectionStart().y - 8);
+            batch.draw(selectorTexture, gc.getSelectionStart().x - 8, gc.getSelectionStart().y - 8);
+            batch.draw(selectorTexture, gc.getSelectionStart().x - 8, gc.getMouse().y - 8);
         }
     }
 }

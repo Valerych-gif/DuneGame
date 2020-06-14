@@ -3,6 +3,7 @@ package com.dune.game.core.controllers;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.dune.game.core.BattleMap;
 import com.dune.game.core.GameController;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.types.Owner;
@@ -41,16 +42,12 @@ public class UnitsController {
         this.playerUnits = new ArrayList<>();
         this.aiUnits = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            createBattleTank(gc.getPlayerLogic(), MathUtils.random(80, 1200), MathUtils.random(80, 640));
+            createBattleTank(gc.getPlayerLogic(), MathUtils.random(0, gc.getMap().getSizeX() - 1) * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE / 2, MathUtils.random(0, gc.getMap().getSizeY() - 1) * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE / 2);
+            createHarvester(gc.getPlayerLogic(), MathUtils.random(0, gc.getMap().getSizeX() - 1) * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE / 2, MathUtils.random(0, gc.getMap().getSizeY() - 1) * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE / 2);
         }
-        for (int i = 0; i < 2; i++) {
-            createHarvester(gc.getPlayerLogic(), MathUtils.random(80, 1200), MathUtils.random(80, 640));
-        }
-        for (int i = 0; i < 2; i++) {
-            createBattleTank(gc.getAiLogic(), MathUtils.random(80, 1200), MathUtils.random(80, 640));
-        }
-        for (int i = 0; i < 2; i++) {
-            createHarvester(gc.getAiLogic(), MathUtils.random(80, 1200), MathUtils.random(80, 640));
+        for (int i = 0; i < 5; i++) {
+            createBattleTank(gc.getAiLogic(), MathUtils.random(0, gc.getMap().getSizeX() - 1) * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE / 2, MathUtils.random(0, gc.getMap().getSizeY() - 1) * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE / 2);
+            createHarvester(gc.getAiLogic(), MathUtils.random(0, gc.getMap().getSizeX() - 1) * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE / 2, MathUtils.random(0, gc.getMap().getSizeY() - 1) * BattleMap.CELL_SIZE + BattleMap.CELL_SIZE / 2);
         }
     }
 

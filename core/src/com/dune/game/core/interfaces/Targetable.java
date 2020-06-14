@@ -5,5 +5,6 @@ import com.dune.game.core.units.types.TargetType;
 
 public interface Targetable {
     Vector2 getPosition();
-    TargetType getType();
+    TargetType getTargetType();
+    boolean isActive();
 }
