@@ -13,6 +13,7 @@ import javax.imageio.stream.ImageOutputStream;
 
 public class PlayerLogic extends BaseLogic {
     public PlayerLogic(GameController gc) {
+        super(gc);
         this.gc = gc;
         this.money = 1000;
         this.unitsCount = 10;

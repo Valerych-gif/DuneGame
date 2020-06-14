@@ -43,6 +43,16 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
     public static int CORE_SIZE = 64;
     public static int CORE_SIZE_D2 = CORE_SIZE / 2;
 
+    protected boolean isBusy;
+
+    public boolean isBusy() {
+        return isBusy;
+    }
+
+    public void setBusy(boolean busy) {
+        isBusy = busy;
+    }
+
     @Override
     public TargetType getTargetType() {
         return TargetType.UNIT;
@@ -94,6 +104,14 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
     @Override
     public boolean isActive() {
         return hp > 0;
+    }
+
+    public int getContainer() {
+        return container;
+    }
+
+    public int getContainerCapacity() {
+        return containerCapacity;
     }
 
     public AbstractUnit(GameController gc) {

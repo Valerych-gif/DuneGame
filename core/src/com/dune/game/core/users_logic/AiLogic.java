@@ -19,8 +19,10 @@ public class AiLogic extends BaseLogic {
     private List<BattleTank> tmpAiBattleTanks;
     private List<Harvester> tmpPlayerHarvesters;
     private List<BattleTank> tmpPlayerBattleTanks;
+    private AbstractUnit tmpUnit;
 
-    public AiLogic(GameController gc) {
+    public AiLogic(GameController gc){
+        super(gc);
         this.gc = gc;
         this.money = 1000;
         this.unitsCount = 10;
@@ -33,15 +35,32 @@ public class AiLogic extends BaseLogic {
     }
 
     public void update(float dt) {
-        timer += dt;
+        timer+=dt;
         if (timer > 2.0f) {
+
             timer = 0.0f;
-            gc.getUnitsController().collectTanks(tmpAiBattleTanks, gc.getUnitsController().getAiUnits(), UnitType.BATTLE_TANK);
-            gc.getUnitsController().collectTanks(tmpPlayerHarvesters, gc.getUnitsController().getPlayerUnits(), UnitType.HARVESTER);
-            gc.getUnitsController().collectTanks(tmpPlayerBattleTanks, gc.getUnitsController().getPlayerUnits(), UnitType.BATTLE_TANK);
+            super.update(dt);
             for (int i = 0; i < tmpAiBattleTanks.size(); i++) {
                 BattleTank aiBattleTank = tmpAiBattleTanks.get(i);
-                aiBattleTank.commandAttack(findNearestTarget(aiBattleTank, tmpPlayerBattleTanks));
+                tmpUnit = findNearestTarget(aiBattleTank, tmpPlayerBattleTanks);
+                if (tmpUnit==null){
+                    tmpUnit = findNearestTarget(aiBattleTank, tmpPlayerHarvesters);
+                }
+                aiBattleTank.commandAttack(tmpUnit);
+            }
+            for (int i = 0; i < tmpAiHarvesters.size(); i++) {
+                Harvester harvester = tmpAiHarvesters.get(i);
+                harvesterProcessing(harvester);
+            }
+            this.unitsCount = gc.getUnitsController().getAiUnits().size();
+            if (tmpAiBattleTanks.size()==0||tmpAiHarvesters.size()/tmpAiBattleTanks.size()>2) {
+                if (money >= 50 && unitsCount < unitsMaxCount) {
+                    gc.getUnitsController().createBattleTank(this, BattleMap.MAP_WIDTH_PX - 100, BattleMap.MAP_HEIGHT_PX - 100);
+                }
+            } else {
+                if (money >= 100 && unitsCount < unitsMaxCount) {
+                    gc.getUnitsController().createHarvester(this, BattleMap.MAP_WIDTH_PX - 100, BattleMap.MAP_HEIGHT_PX - 100);
+                }
             }
         }
     }

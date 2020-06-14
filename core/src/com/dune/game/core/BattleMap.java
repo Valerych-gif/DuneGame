@@ -4,10 +4,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.screens.utils.Assets;
 
 public class BattleMap implements GameMap {
     private class Cell {
+        private AbstractUnit applicant;
         private Building buildingCore;
         private Building buildingEntrance;
         private int cellX, cellY;
@@ -175,6 +177,14 @@ public class BattleMap implements GameMap {
             return false;
         }
         return cells[cellX][cellY].groundPassable;
+    }
+
+    public void setApplicant(AbstractUnit applicant, int cx, int cy){
+        cells[cx][cy].applicant=applicant;
+    }
+
+    public AbstractUnit getApplicant(int cx, int cy){
+        return cells[cx][cy].applicant;
     }
 
     public int getResourceCount(Vector2 point) {

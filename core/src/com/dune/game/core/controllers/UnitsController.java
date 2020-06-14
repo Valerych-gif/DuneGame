@@ -53,10 +53,12 @@ public class UnitsController {
 
     public void createBattleTank(BaseLogic baseLogic, float x, float y) {
         battleTanksController.setup(x, y, baseLogic);
+        baseLogic.decreaseMoney(50);
     }
 
     public void createHarvester(BaseLogic baseLogic, float x, float y) {
         harvestersController.setup(x, y, baseLogic);
+        baseLogic.decreaseMoney(100);
     }
 
     public void update(float dt) {

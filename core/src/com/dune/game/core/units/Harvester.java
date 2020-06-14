@@ -31,6 +31,10 @@ public class Harvester extends AbstractUnit {
         this.commandMoveTo(this.position, true);
     }
 
+    public boolean isOverload() {
+        return getContainer() >= getContainerCapacity();
+    }
+
     public void updateWeapon(float dt) {
         if (gc.getMap().getResourceCount(position) > 0 && container < containerCapacity) {
             int result = weapon.use(dt);
@@ -41,6 +45,9 @@ public class Harvester extends AbstractUnit {
                 }
             }
         } else {
+            if (position.dst(destination) < BattleMap.CELL_SIZE / 2) {
+                setBusy(false);
+            }
             weapon.reset();
         }
     }
@@ -67,8 +74,9 @@ public class Harvester extends AbstractUnit {
         super.update(dt);
         Building b = gc.getMap().getBuildingEntrance(getCellX(), getCellY());
         if (b != null && b.getBuildingType() == Building.Type.STOCK && b.getOwnerLogic() == this.baseLogic) {
-            baseLogic.addMoney(container * 100);
+            baseLogic.addMoney(container);
             container = 0;
+            setBusy(false);
         }
     }
 }
