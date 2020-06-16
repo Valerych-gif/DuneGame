@@ -1,7 +1,7 @@
 package com.dune.game.core.controllers;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.dune.game.core.Building;
+import com.dune.game.core.map.Building;
 import com.dune.game.core.GameController;
 import com.dune.game.core.utils.ObjectPool;
 import com.dune.game.core.users_logic.BaseLogic;

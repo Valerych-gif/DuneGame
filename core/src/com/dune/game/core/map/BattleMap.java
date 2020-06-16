@@ -1,14 +1,12 @@
-package com.dune.game.map;
+package com.dune.game.core.map;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.dune.game.core.Building;
 import com.dune.game.core.GameController;
 import com.dune.game.core.GameMap;
 import com.dune.game.core.units.AbstractUnit;
-import com.dune.game.screens.utils.Assets;
 
 public class BattleMap implements GameMap {
 
@@ -51,18 +49,14 @@ public class BattleMap implements GameMap {
 
     @Override
     public int getCellCost(int cellX, int cellY) {
-        return 1;
+        return cells[cellX][cellY].getType().getPathCost();
     }
 
-    private TextureRegion grassTexture;
-    private TextureRegion resourceTexture;
     private Cell[][] cells;
-    GameController gc;
+    private GameController gc;
 
 
     public BattleMap(GameController gc) {
-//        this.grassTexture = Assets.getInstance().getAtlas().findRegion("grass");
-//        this.resourceTexture = Assets.getInstance().getAtlas().findRegion("resource");
         this.gc = gc;
         this.cells = new Cell[COLUMNS_COUNT][ROWS_COUNT];
     }
@@ -71,19 +65,21 @@ public class BattleMap implements GameMap {
         for (int i = 0; i < COLUMNS_COUNT; i++) {
             for (int j = 0; j < ROWS_COUNT; j++) {
 
+                cells[i][j] = new Cell(i, j, CellsTypes.GRASS);
+
                 if (MathUtils.random() < 0.1f) {
-                    cells[i][j] = new Cell(i, j, CellTypes.RESOURCE);
+                    cells[i][j] = new Cell(i, j, CellsTypes.RESOURCE);
                     cells[i][j].setResource(MathUtils.random(1, 3));
-                } else {
-                    cells[i][j] = new Cell(i, j, CellTypes.GRASS);
+
+                    cells[i][j].setResourceRegenerationRate(MathUtils.random(5.0f) - 4.5f);
+                    if (cells[i][j].getResourceRegenerationRate() < 0.0f) {
+                        cells[i][j].setResourceRegenerationRate(0.0f);
+                    } else {
+                        cells[i][j] = new Cell(i, j, CellsTypes.REGENERATE_RESOURCE);
+                        cells[i][j].setResourceRegenerationRate(cells[i][j].getResourceRegenerationRate() * 20.0f);
+                        cells[i][j].setResourceRegenerationRate(cells[i][j].getResourceRegenerationRate() + 10.0f);
+                    }
                 }
-//        resourceRegenerationRate = MathUtils.random(5.0f) - 4.5f;
-//        if (resourceRegenerationRate < 0.0f) {
-//            resourceRegenerationRate = 0.0f;
-//        } else {
-//            resourceRegenerationRate *= 20.0f;
-//            resourceRegenerationRate += 10.0f;
-//        }
             }
         }
 
@@ -107,7 +103,8 @@ public class BattleMap implements GameMap {
         cells[cellX][cellY].unblockAirPass();
     }
 
-    public void setupBuilding(int startX, int startY, int endX, int endY, int entranceX, int entranceY, Building building) {
+    public void setupBuilding(int startX, int startY, int endX, int endY, int entranceX, int entranceY, Building
+            building) {
         for (int i = startX; i <= endX; i++) {
             for (int j = startY; j <= endY; j++) {
                 cells[i][j].setBuildingCore(building);

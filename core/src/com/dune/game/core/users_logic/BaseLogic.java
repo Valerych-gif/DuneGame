@@ -1,10 +1,11 @@
 package com.dune.game.core.users_logic;
 
 import com.badlogic.gdx.math.Vector2;
-import com.dune.game.map.BattleMap;
-import com.dune.game.core.Building;
+import com.dune.game.core.map.BattleMap;
+import com.dune.game.core.map.Building;
 import com.dune.game.core.GameController;
 import com.dune.game.core.interfaces.Targetable;
+import com.dune.game.core.map.BuildingsTypes;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;
 import com.dune.game.core.units.Harvester;
@@ -92,7 +93,7 @@ public class BaseLogic {
             } else {
                 for (int i = 0; i < buildings.size(); i++) {
                     Building building = buildings.get(i);
-                    if (building.getOwnerLogic() == this && building.getBuildingType() == Building.Type.STOCK) {
+                    if (building.getOwnerLogic() == this && building.getBuildingType() == BuildingsTypes.STOCK) {
                         float x = building.getCellX() * BattleMap.CELL_SIZE;
                         float y = building.getCellY() * BattleMap.CELL_SIZE;
                         destination.set(x + (float) BattleMap.CELL_SIZE / 2, y - (float) BattleMap.CELL_SIZE / 2);

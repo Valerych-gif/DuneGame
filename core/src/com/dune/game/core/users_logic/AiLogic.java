@@ -1,6 +1,6 @@
 package com.dune.game.core.users_logic;
 
-import com.dune.game.map.BattleMap;
+import com.dune.game.core.map.BattleMap;
 import com.dune.game.core.GameController;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;

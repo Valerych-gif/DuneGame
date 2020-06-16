@@ -67,7 +67,6 @@ public class PlayerLogic extends BaseLogic {
         List<Targetable> targets = new ArrayList<>();
         targets.addAll(collectTargets(buildings, TargetType.BUILDING));
         targets.addAll(collectTargets(aiUnits, TargetType.UNIT));
-        System.out.println(targets.size());
         for (int i = 0; i < targets.size(); i++) {
             Targetable t = targets.get(i);
             if (t.getPosition().dst(point) < 30) {

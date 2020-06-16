@@ -34,6 +34,14 @@ public class BattleTank extends AbstractUnit {
     }
 
     public void updateWeapon(float dt) {
+        if (weaponTimer >10){
+            container++;
+            weaponTimer =0;
+        }
+
+        if (container>=containerCapacity){
+            container=containerCapacity;
+        }
         if (target != null) {
             if (!target.isActive()) {
                 target = null;
@@ -73,5 +81,14 @@ public class BattleTank extends AbstractUnit {
     @Override
     public void renderGui(SpriteBatch batch) {
         super.renderGui(batch);
+        super.renderGui(batch);
+        if (container > 0) {
+            batch.setColor(0.2f, 0.2f, 0.0f, 1.0f);
+            batch.draw(progressbarTexture, position.x - 32, position.y + 22, 64, 8);
+            batch.setColor(1.0f, 1.0f, 0.0f, 1.0f);
+            float containerPercentage = (float)container / containerCapacity;
+            batch.draw(progressbarTexture, position.x - 30, position.y + 24, 60 * containerPercentage, 4);
+            batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+        }
     }
 }

@@ -3,9 +3,11 @@ package com.dune.game.core.units;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.dune.game.core.*;
 import com.dune.game.core.interfaces.Targetable;
+import com.dune.game.core.map.Building;
+import com.dune.game.core.map.BuildingsTypes;
 import com.dune.game.core.units.types.UnitType;
 import com.dune.game.core.users_logic.BaseLogic;
-import com.dune.game.map.BattleMap;
+import com.dune.game.core.map.BattleMap;
 import com.dune.game.screens.utils.Assets;
 
 public class Harvester extends AbstractUnit {
@@ -74,7 +76,7 @@ public class Harvester extends AbstractUnit {
     public void update(float dt) {
         super.update(dt);
         Building b = gc.getMap().getBuildingEntrance(getCellX(), getCellY());
-        if (b != null && b.getBuildingType() == Building.Type.STOCK && b.getOwnerLogic() == this.baseLogic) {
+        if (b != null && b.getBuildingType() == BuildingsTypes.STOCK && b.getOwnerLogic() == this.baseLogic) {
             baseLogic.addMoney(container);
             container = 0;
             setBusy(false);

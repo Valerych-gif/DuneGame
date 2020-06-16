@@ -13,7 +13,7 @@ import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.users_logic.AiLogic;
 import com.dune.game.core.users_logic.PlayerLogic;
 import com.dune.game.core.utils.Collider;
-import com.dune.game.map.BattleMap;
+import com.dune.game.core.map.BattleMap;
 import com.dune.game.screens.ScreenManager;
 
 import java.util.ArrayList;
@@ -131,6 +131,12 @@ public class GameController {
         this.pointOfView = new Vector2(ScreenManager.HALF_WORLD_WIDTH, ScreenManager.HALF_WORLD_HEIGHT);
         this.gameInterface = new GameInterface(this);
         this.guiPlayerInfo = new GuiPlayerInfo(this);
+        this.setup();
+//        this.music = Gdx.audio.newMusic(Gdx.files.internal("1.mp3"));
+//        this.sound = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
+    }
+
+    private void setup() {
         this.stage = new Stage(ScreenManager.getInstance().getViewport(), ScreenManager.getInstance().getBatch());
         this.map.setup();
         this.pathFinder.setup();
@@ -141,8 +147,6 @@ public class GameController {
         this.guiPlayerInfo.setup();
 
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, prepareInput()));
-//        this.music = Gdx.audio.newMusic(Gdx.files.internal("1.mp3"));
-//        this.sound = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
     }
 
     public void update(float dt) {

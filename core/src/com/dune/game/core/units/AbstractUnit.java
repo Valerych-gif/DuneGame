@@ -11,7 +11,7 @@ import com.dune.game.core.units.types.Owner;
 import com.dune.game.core.units.types.TargetType;
 import com.dune.game.core.units.types.UnitType;
 import com.dune.game.core.users_logic.BaseLogic;
-import com.dune.game.map.BattleMap;
+import com.dune.game.core.map.BattleMap;
 import com.dune.game.screens.utils.Assets;
 
 public abstract class AbstractUnit extends GameObject implements Poolable, Targetable {
@@ -33,7 +33,7 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
     protected float rotationSpeed;
 
     protected float moveTimer;
-    protected float lifeTime;
+    protected float weaponTimer;
     protected float timePerFrame;
     protected int container;
     protected int containerCapacity;
@@ -130,7 +130,7 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
     }
 
     public void update(float dt) {
-        lifeTime += dt;
+        weaponTimer += dt;
         if (target != null) {
             commandMoveTo(target.getPosition(), false);
             if (position.dst(target.getPosition()) < minDstToActiveTarget) {
@@ -207,7 +207,7 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
         float c = 1.0f;
         float r = 0.0f;
         if (gc.isUnitSelected(this)) {
-            c = 0.7f + (float) Math.sin(lifeTime * 8.0f) * 0.3f;
+            c = 0.7f + (float) Math.sin(weaponTimer * 8.0f) * 0.3f;
         }
         if (ownerType == Owner.AI) {
             r = 0.4f;

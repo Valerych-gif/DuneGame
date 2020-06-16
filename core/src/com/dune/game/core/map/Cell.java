@@ -1,9 +1,7 @@
-package com.dune.game.map;
+package com.dune.game.core.map;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
-import com.dune.game.core.Building;
 import com.dune.game.core.units.AbstractUnit;
 
 public class Cell {
@@ -17,7 +15,7 @@ public class Cell {
     private boolean groundPassable;
     private boolean airPassable;
     private TextureRegion texture;
-    private CellTypes type;
+    private CellsTypes type;
 
     public AbstractUnit getApplicant() {
         return applicant;
@@ -51,12 +49,20 @@ public class Cell {
         this.airPassable = airPassable;
     }
 
-    public void setType(CellTypes type) {
+    public void setType(CellsTypes type) {
         this.type = type;
     }
 
     public void setResource(int resource) {
         this.resource = resource;
+    }
+
+    public void setResourceRegenerationRate(float resourceRegenerationRate) {
+        this.resourceRegenerationRate = resourceRegenerationRate;
+    }
+
+    public void setResourceRegenerationTime(float resourceRegenerationTime) {
+        this.resourceRegenerationTime = resourceRegenerationTime;
     }
 
     public int getCellX() {
@@ -71,6 +77,10 @@ public class Cell {
         return resource;
     }
 
+    public float getResourceRegenerationRate() {
+        return resourceRegenerationRate;
+    }
+
     public boolean isGroundPassable() {
         return groundPassable;
     }
@@ -79,11 +89,11 @@ public class Cell {
         return airPassable;
     }
 
-    public CellTypes getType() {
+    public CellsTypes getType() {
         return type;
     }
 
-    public Cell(int cellX, int cellY, CellTypes type) {
+    public Cell(int cellX, int cellY, CellsTypes type) {
         this.cellX = cellX;
         this.cellY = cellY;
         this.type = type;
@@ -93,24 +103,33 @@ public class Cell {
     }
 
     public void update(float dt) {
-//        if (resourceRegenerationRate > 0.01f) {
-//            resourceRegenerationTime += dt;
-//            if (resourceRegenerationTime > resourceRegenerationRate) {
-//                resourceRegenerationTime = 0.0f;
-//                resource++;
-//                if (resource > 5) {
-//                    resource = 5;
-//                }
-//            }
-//        }
+        if (resourceRegenerationRate > 0.01f) {
+            resourceRegenerationTime += dt;
+            if (resourceRegenerationTime > resourceRegenerationRate) {
+                resourceRegenerationTime = 0.0f;
+                resource++;
+                if (resource > 5) {
+                    resource = 5;
+                }
+            }
+        }
         if (resource<=0){
-            this.type=CellTypes.GRASS;
+            this.type= CellsTypes.GRASS;
             this.texture=type.getTexture();
         }
     }
 
     public void render(SpriteBatch batch) {
         batch.draw(texture, cellX * BattleMap.CELL_SIZE, cellY * BattleMap.CELL_SIZE, BattleMap.CELL_SIZE / 2, BattleMap.CELL_SIZE / 2, BattleMap.CELL_SIZE, BattleMap.CELL_SIZE, 1, 1, 0.0f);
+
+        if (resource > 0) {
+            float scale = 0.5f + resource * 0.2f;
+            batch.draw(texture, cellX * BattleMap.CELL_SIZE, cellY * BattleMap.CELL_SIZE, BattleMap.CELL_SIZE / 2, BattleMap.CELL_SIZE / 2, BattleMap.CELL_SIZE, BattleMap.CELL_SIZE, scale, scale, 0.0f);
+        } else {
+            if (resourceRegenerationRate > 0.01f) {
+                batch.draw(texture, cellX * BattleMap.CELL_SIZE, cellY * BattleMap.CELL_SIZE, BattleMap.CELL_SIZE / 2, BattleMap.CELL_SIZE / 2, BattleMap.CELL_SIZE, BattleMap.CELL_SIZE, 0.1f, 0.1f, 0.0f);
+            }
+        }
     }
 
     public void blockGroundPass() {

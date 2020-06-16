@@ -1,25 +1,25 @@
-package com.dune.game.core;
+package com.dune.game.core.map;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.dune.game.core.GameController;
+import com.dune.game.core.GameObject;
 import com.dune.game.core.interfaces.Poolable;
 import com.dune.game.core.interfaces.Targetable;
 import com.dune.game.core.units.types.TargetType;
 import com.dune.game.core.users_logic.BaseLogic;
-import com.dune.game.map.BattleMap;
+import com.dune.game.core.map.BattleMap;
 import com.dune.game.screens.utils.Assets;
 
 public class Building extends GameObject implements Poolable, Targetable {
-    public enum Type {
-        STOCK
-    }
+
 
     // * * *
     // * P *
     //   E
     private BaseLogic ownerLogic;
-    private Type buildingType;
+    private BuildingsTypes buildingType;
     private TextureRegion texture;
     private TextureRegion progressbarTexture;
     private Vector2 textureWorldPosition;
@@ -32,7 +32,7 @@ public class Building extends GameObject implements Poolable, Targetable {
         return hp > 0;
     }
 
-    public Type getBuildingType() {
+    public BuildingsTypes getBuildingType() {
         return buildingType;
     }
 
@@ -60,7 +60,7 @@ public class Building extends GameObject implements Poolable, Targetable {
         this.hpMax = 500;
         this.hp = this.hpMax;
         this.textureWorldPosition.set((cellX - 1) * BattleMap.CELL_SIZE, cellY * BattleMap.CELL_SIZE);
-        this.buildingType = Type.STOCK;
+        this.buildingType = BuildingsTypes.STOCK;
         gc.getMap().setupBuilding(cellX - 1, cellY, cellX + 1, cellY + 1, cellX, cellY - 1, this);
     }
 

@@ -1,14 +1,15 @@
-package com.dune.game.map;
+package com.dune.game.core.map;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.dune.game.screens.utils.Assets;
 
-public enum CellTypes {
+public enum CellsTypes {
     GRASS("grass", 1),
-    RESOURCE("resource", 2);
+    RESOURCE("resource", 2),
+    REGENERATE_RESOURCE("resource", 2);
 
-    TextureRegion texture;
-    int pathCost;
+    private TextureRegion texture;
+    private int pathCost;
 
     public TextureRegion getTexture() {
         return texture;
@@ -18,7 +19,7 @@ public enum CellTypes {
         return pathCost;
     }
 
-    CellTypes (String textureName, int pathCost){
+    CellsTypes(String textureName, int pathCost){
         this.texture=Assets.getInstance().getAtlas().findRegion(textureName);
         this.pathCost=pathCost;
     }
