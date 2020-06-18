@@ -176,4 +176,5 @@ public class BattleMap implements GameMap {
     public Building getBuildingEntrance(int cellX, int cellY) {
         return cells[cellX][cellY].getBuildingEntrance();
     }
+
 }

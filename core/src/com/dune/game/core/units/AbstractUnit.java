@@ -30,6 +30,7 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
     protected int hpMax;
     protected float angle;
     protected float speed;
+    protected float tmpSpeed;
     protected float rotationSpeed;
 
     protected float moveTimer;
@@ -153,7 +154,8 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
                 }
             }
 
-            tmp.set(speed, 0).rotate(angle);
+            tmpSpeed = speed/(gc.getMap().getCellCost((int)position.x/BattleMap.CELL_SIZE, (int)position.y/BattleMap.CELL_SIZE));
+            tmp.set(tmpSpeed, 0).rotate(angle);
             position.mulAdd(tmp, dt);
             if ((position.dst(destination) < 120.0f && Math.abs(angleTo - angle) > 10)) {
                 position.mulAdd(tmp, -dt);
